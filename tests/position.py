@@ -4,6 +4,8 @@ x1 = y1 = 0  # Armazenam a posição inicial de x e y
 print('''Botão Esquerdo: 'place' Clique na posição inicial e arraste até a posição final
 Botão Direitro:   'geometry' Mostra as medidas para o posicionamento da janela "geometry"
 ''')
+
+
 def start_place(arg):
     global x1, y1
     x1 = arg.x
