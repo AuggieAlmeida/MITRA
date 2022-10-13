@@ -1,34 +1,36 @@
-from tkinter import *
+import tkinter
+from tkinter import NONE, Label, Button, Frame, StringVar, Entry, Scrollbar, Listbox
 from lib.functions import set_window_center
 
 
 class Clients:
-    def __init__(self):
-        self.root = Tk()
-        self.root.title("MITRA - Clientes")
+    def __init__(self, master=NONE):
+        self.page = Frame(master)
+        master.title("MITRA - Clientes")
         self.x_pad = 5
         self.y_pad = 3
         self.width_entry = 30
-        set_window_center(self.root, 980, 630)
-        self.root.resizable(False, False)
+        set_window_center(master, 980, 630)
+        master.resizable(False, False)
 
         # text variables
         self.txt_name = StringVar()
         self.txt_email = StringVar()
         self.txt_cp = StringVar()
         self.txt_ctt = StringVar()
+        self.setup()
 
+    def setup(self):
         self.init_page()
 
     def init_page(self):
-        self.page = Frame(self.root)
         self.page.pack()
 
         # Window Objects
         Label(self.page, text="Nome").grid(row=0, column=0)
         Label(self.page, text="Cel/Tel").grid(row=1, column=0)
         Label(self.page, text="Email").grid(row=2, column=0)
-        Label(self.page, text="CPF").grid(row=3, column=0)
+        Label(self.page, text="CPF/CNPJ").grid(row=3, column=0)
 
         name = Entry(self.page, textvariable=self.txt_name, width=self.width_entry)
         ctt = Entry(self.page, textvariable=self.txt_ctt, width=self.width_entry)

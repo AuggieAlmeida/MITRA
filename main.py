@@ -19,7 +19,7 @@ class App(Tk):
         Splash.Splah()
         Tk.__init__(self)
 
-        ClientesView.Clients()
+        ClientesView.Clients(self)
 
         self.mainloop()
 
