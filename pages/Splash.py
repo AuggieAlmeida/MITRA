@@ -39,5 +39,5 @@ class Splah(Tk):
             fill="both", side="bottom"
         )
 
-        self.after(3000, self.destroy)
+        self.after(1000, self.destroy)
         self.mainloop()
