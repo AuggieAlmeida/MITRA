@@ -7,18 +7,11 @@ from tkinter import Canvas, Label, Tk, Image
 from PIL import Image, ImageTk
 
 import lib.global_variable as glv
-from lib.functions import set_window_center
 
 
-class Splah(Tk):
-
+class Splash(Tk):
     def __init__(self):
-        Tk.__init__(self)
-        self.title("MITRA")
         self.w = 300
-        self.h = 300
-        set_window_center(self, self.w, self.h)
-        self.resizable(False, False)
         self.splash()
 
     def splash(self):
@@ -28,6 +21,7 @@ class Splah(Tk):
             "assets",
             "LOGO.png",
         )
+
         canvas = Canvas(self, width=self.w, height=250, bg="white")
         if os.path.exists(image_file):
             img = Image.open(image_file)
