@@ -7,11 +7,17 @@ from tkinter import Canvas, Label, Tk, Image
 from PIL import Image, ImageTk
 
 import lib.global_variable as glv
+from lib.functions import set_window_center
 
 
 class Splash(Tk):
     def __init__(self):
+        Tk.__init__(self)
         self.w = 300
+        self.resizable(False, False)
+        self.h = 300
+        set_window_center(self, self.w, self.h)
+        self.title("MITRA")
         self.splash()
 
     def splash(self):
