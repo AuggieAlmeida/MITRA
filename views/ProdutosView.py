@@ -257,8 +257,8 @@ class ProductsView(ProductsController):
         self.precFrame = LabelFrame(self.frameup, text="  Precificação  ", bg=color("background"), font='Ivy 12')
         self.precFrame.place(relx=0.02, relwidth=0.96, rely=0.30, relheight=0.18)
 
-        self.ckb_Kg = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.ckb_Kg.place(relx=0.05, rely=0.37)
+        self.lb_Kg = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_Kg.place(relx=0.05, rely=0.37)
 
         self.kg_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
         self.kg_entry.place(relx=0.11, rely=0.37, relwidth=0.15, relheight=0.05)
@@ -266,17 +266,23 @@ class ProductsView(ProductsController):
         self.ckb_Kg = Label(self.frameup, text='Kg', font='Ivy 11', bg=color("background"))
         self.ckb_Kg.place(relx=0.27, rely=0.37)
 
+        self.lb_m = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_m.place(relx=0.36, rely=0.37)
+
         self.m_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
         self.m_entry.place(relx=0.42, rely=0.37, relwidth=0.15, relheight=0.05)
 
         self.ckb_M = Label(self.frameup, text='M²', font='Ivy 11', bg=color("background"))
         self.ckb_M.place(relx=0.58, rely=0.37)
 
+        self.lb_qtd = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_qtd.place(relx=0.66, rely=0.37)
+
         self.qtd_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.qtd_entry.place(relx=0.73, rely=0.37, relwidth=0.15, relheight=0.05)
+        self.qtd_entry.place(relx=0.72, rely=0.37, relwidth=0.15, relheight=0.05)
 
         self.ckb_Qtd = Label(self.frameup, text='Qtd', font='Ivy 11', bg=color("background"))
-        self.ckb_Qtd.place(relx=0.89, rely=0.37)
+        self.ckb_Qtd.place(relx=0.88, rely=0.37)
 
         self.cadobs = Label(self.frameup, text="Descrição:", font="Ivy 13", background=color("background"))
         self.cadobs.place(relx=0.02, rely=0.51)

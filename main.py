@@ -53,7 +53,7 @@ class App:
         db.Database().struct_db()
         self.frames()
         self.menu_buttons()
-        self.init_clientes()
+        self.init_home()
         root.mainloop()
 
     def home(self):
@@ -61,8 +61,11 @@ class App:
         self.root.configure(background=color("background2"))
         set_window_center(self.root, 1260, 680)
         self.root.resizable(False, False)
-
+        self.root.bind("<B3-Motion>", self.move_app)
         self.root.iconbitmap('assets\icon.ico')
+
+    def move_app(self, e):
+        self.root.geometry(f'+{e.x_root - 630}+{e.y_root - 340}')
 
     def frames(self):
         self.frameupleft = GradientFrame(self.root)
@@ -77,13 +80,13 @@ class App:
         self.framebar = Frame(self.root)
         self.framebar.place(relx=0, rely=0, relwidth=1, height=60)
 
+    def init_home(self):
+        self.reset_page()
+        self.init_layout()
+
     def init_clientes(self):
         self.reset_page()
         ClientesView.ClientsView(self.framedownleft, self.frameright, self.frameupleft)
-
-    def init_home(self):
-        self.reset_page()
-        HomePage.HomePage(self.framedownleft, self.frameright, self.frameupleft)
 
     def init_comercial(self):
         self.reset_page()
@@ -115,7 +118,7 @@ class App:
         self.btnclients.place(x=820, rely=0, width=70, height=60)
 
         self.ordersImg = PhotoImage(file=r'assets\3.png')
-        self.btnorders = Button(self.framebar, image=self.ordersImg, relief='flat', command=self.init_comercial)
+        self.btnorders = Button(self.framebar, image=self.ordersImg, relief='flat', command=self.reset_page)
         self.btnorders.place(x=900, rely=0, width=70, height=60)
 
         self.productsImg = PhotoImage(file=r'assets\4.png')
@@ -129,6 +132,31 @@ class App:
         self.configImg = PhotoImage(file=r'assets\6.png')
         self.btnconfig = Button(self.framebar,image=self.configImg, relief='flat', command=self.root.destroy)
         self.btnconfig.place(x=1180, rely=0, width=70, height=60)
+
+    def init_layout(self):
+        self.bgImg = PhotoImage(file=r'assets\CARD.png')
+        self.bg = Label(self.framedownleft, image=self.bgImg)
+        self.bg.place(relx=0, rely=0, relwidth=1, height=445)
+
+        self.bg2Img = PhotoImage(file=r'assets\CARD2.png')
+        self.bg2 = Label(self.frameright, image=self.bg2Img, bg=color("background2"))
+        self.bg2.place(relwidth=1, relheight=1)
+
+        self.title = Label(self.framedownleft, text="Home", font="Ivy 18 bold", bg="#CEDCE4")
+        self.title.place(relx=0.008, rely=0.005, relwidth=0.20, height= 28)
+
+        self.text = Label(self.frameright, text="Administrativo", font="Ivy 20 bold", bg="#CEDCE4")
+        self.text.place(relx=0.01, rely=0.018, relwidth=0.3, relheight=0.05)
+
+
+        self.logoImg = PhotoImage(file=r'assets\LOGO.PNG')
+        self.logo = Label(self.framedownleft, image=self.logoImg, background=color("background"))
+        self.logo.place(x=0, y=39, relwidth=1, height=390)
+
+
+        Label(self.framedownleft, text="                                                 ", font="Ivy 13 bold",
+              bg=color("background-bar")). \
+            place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
 
 App()

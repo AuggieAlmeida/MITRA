@@ -63,10 +63,7 @@ class ClientsCadView(ClientsCadController):
         self.bt_leave.place(relx=0.03, rely=0.10, relheight=0.80, relwidth=0.22)
         self.bt_clean = Button(self.buttons, text="Relatório", font='Ivy 14', bg=color("background"),
                                command=self.clean)
-        self.bt_clean.place(relx=0.39, rely=0.10, relheight=0.80, relwidth=0.22)
-        self.bt_save = Button(self.buttons, text="Salvar", font="Ivy 14", background=color("background"),
-                              command=self.insertClients)
-        self.bt_save.place(relx=0.75, rely=0.10, relheight=0.80, relwidth=0.22)
+        self.bt_clean.place(relx=0.75, rely=0.10, relheight=0.80, relwidth=0.22)
 
     def clean(self):
         self.name_entry.delete(0, END)

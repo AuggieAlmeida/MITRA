@@ -1,4 +1,4 @@
-from tkinter import Frame, Label, Canvas
+from tkinter import Canvas
 from lib.colours import color
 
 
