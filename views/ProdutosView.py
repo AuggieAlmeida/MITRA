@@ -26,15 +26,17 @@ class ProductsController:
         self.mat = self.mat_entry.get()
         self.kg = self.kg_entry.get()
         self.m = self.m_entry.get()
+        self.m2 = self.m2_entry.get()
         self.qtd = self.qtd_entry.get()
         self.obs = self.obs_entry.get("1.0", END)
 
-    def setEntry(self, cod, name, mat, kg, m, qtd, obs):
+    def setEntry(self, cod, name, mat, kg, m, m2, qtd, obs):
         self.lb_id.config(text=cod)
         self.prod_entry.insert(END, name)
         self.mat_entry.insert(END, mat)
         self.kg_entry.insert(END, kg)
         self.m_entry.insert(END, m)
+        self.m2_entry.insert(END, m2)
         self.qtd_entry.insert(END, qtd)
         self.obs_entry.insert("1.0", obs)
 
@@ -43,6 +45,7 @@ class ProductsController:
         self.mat_entry.delete(0, END)
         self.kg_entry.delete(0, END)
         self.m_entry.delete(0, END)
+        self.m2_entry.delete(0, END)
         self.qtd_entry.delete(0, END)
         self.obs_entry.delete("1.0", END)
 
@@ -60,9 +63,22 @@ class ProductsController:
     def insertProduct(self):
         self.getEntry()
         try:
-            self.kg = float(self.kg.replace(",", "."))
-            self.m = float(self.m.replace(",", "."))
-            self.qtd = float(self.qtd.replace(",", "."))
+            if self.kg == "":
+                self.kg = 0
+            else:
+                self.kg = float(self.kg.replace(",", "."))
+            if self.m == "":
+                self.m = 0
+            else:
+                self.m = float(self.m.replace(",", "."))
+            if self.m2 == "":
+                self.m2 = 0
+            else:
+                self.m2 = float(self.m2.replace(",", "."))
+            if self.qtd == "":
+                self.qtd = 0
+            else:
+                self.qtd = float(self.qtd.replace(",", "."))
         except:
             messagebox.showerror('Erro', 'Preço inválido')
         else:
@@ -72,9 +88,9 @@ class ProductsController:
 
                 self.clean()
                 self.connect_db()
-                self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, unit, descricao)
-                    VALUES (?, ?, ?, ?, ?, ?)""",
-                                    (self.prod, self.mat, self.kg, self.m, self.qtd, self.obs))
+                self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, m2, unit, descricao)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                                    (self.prod, self.mat, self.kg, self.m, self.m2, self.qtd, self.obs))
                 self.conn.commit()
                 messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
                 self.disconnect_db()
@@ -106,9 +122,22 @@ class ProductsController:
         self.getEntry()
         self.connect_db()
         try:
-            self.kg = float(self.kg.replace(",", "."))
-            self.m = float(self.m.replace(",", "."))
-            self.qtd = float(self.qtd.replace(",", "."))
+            if self.kg == "":
+                self.kg = 0
+            else:
+                self.kg = float(self.kg.replace(",", "."))
+            if self.m == "":
+                self.m = 0
+            else:
+                self.m = float(self.m.replace(",", "."))
+            if self.m2 == "":
+                self.m2 = 0
+            else:
+                self.m2 = float(self.m2.replace(",", "."))
+            if self.qtd == "":
+                self.qtd = 0
+            else:
+                self.qtd = float(self.qtd.replace(",", "."))
         except:
             messagebox.showerror('Erro', 'Preço inválido')
         else:
@@ -120,9 +149,10 @@ class ProductsController:
                     material = ?,
                     kg = ?,
                     m = ?,
+                    m2 = ?,
                     unit = ?,
                     descricao = ?
-                    WHERE cod = ?""", (self.prod, self.mat, self.kg, self.m, self.qtd, self.obs, self.cod))
+                    WHERE cod = ?""", (self.prod, self.mat, self.kg, self.m, self.m2, self.qtd, self.obs, self.cod))
                 self.conn.commit()
                 self.disconnect_db()
                 self.clean()
@@ -158,10 +188,9 @@ class ProductsController:
     def treeReload(self, list):
 
         global tree
+        list = self.selectAllProducts()
 
-        listClient = list
-
-        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M²', 'R$ Unit']
+        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -169,8 +198,8 @@ class ProductsController:
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.87)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.87)
 
-        hd = ["nw", "nw", "nw", "center", "center", "center"]
-        h = [10, 260, 190, 70, 70, 70]
+        hd = ["nw", "nw", "nw", "center", "center", "center", "center"]
+        h = [10, 260, 190, 70, 70, 70, 70]
         n = 0
 
         for col in self.list_header:
@@ -178,7 +207,7 @@ class ProductsController:
             tree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        for item in listClient:
+        for item in list:
             tree.insert('', END, values=item)
 
         tree.bind("<Double-1>", self.OnDoubleClick)
@@ -196,7 +225,7 @@ class ProductsController:
         cod = self.treeSelect()
         values = self.selectProductbyId(cod[0])
         self.setEntry(values[0][0], values[0][1], values[0][2], values[0][3], values[0][4], values[0][5],
-                      values[0][6])
+                      values[0][6], values[0][7])
 
 
 class ProductsView(ProductsController):
@@ -255,34 +284,43 @@ class ProductsView(ProductsController):
         self.mat_entry.place(relx=0.215, rely=0.19, relwidth=0.68, relheight=0.05)
 
         self.precFrame = LabelFrame(self.frameup, text="  Precificação  ", bg=color("background"), font='Ivy 12')
-        self.precFrame.place(relx=0.02, relwidth=0.96, rely=0.30, relheight=0.18)
+        self.precFrame.place(relx=0.02, relwidth=0.96, rely=0.27, relheight=0.23)
 
         self.lb_Kg = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.lb_Kg.place(relx=0.05, rely=0.37)
+        self.lb_Kg.place(relx=0.07, rely=0.34)
 
         self.kg_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.kg_entry.place(relx=0.11, rely=0.37, relwidth=0.15, relheight=0.05)
+        self.kg_entry.place(relx=0.13, rely=0.34, relwidth=0.15, relheight=0.05)
 
         self.ckb_Kg = Label(self.frameup, text='Kg', font='Ivy 11', bg=color("background"))
-        self.ckb_Kg.place(relx=0.27, rely=0.37)
+        self.ckb_Kg.place(relx=0.29, rely=0.34)
 
         self.lb_m = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.lb_m.place(relx=0.36, rely=0.37)
+        self.lb_m.place(relx=0.07, rely=0.42)
 
         self.m_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.m_entry.place(relx=0.42, rely=0.37, relwidth=0.15, relheight=0.05)
+        self.m_entry.place(relx=0.13, rely=0.42, relwidth=0.15, relheight=0.05)
 
-        self.ckb_M = Label(self.frameup, text='M²', font='Ivy 11', bg=color("background"))
-        self.ckb_M.place(relx=0.58, rely=0.37)
+        self.ckb_M = Label(self.frameup, text='M', font='Ivy 11', bg=color("background"))
+        self.ckb_M.place(relx=0.29, rely=0.42)
 
         self.lb_qtd = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.lb_qtd.place(relx=0.66, rely=0.37)
+        self.lb_qtd.place(relx=0.50, rely=0.34)
 
         self.qtd_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.qtd_entry.place(relx=0.72, rely=0.37, relwidth=0.15, relheight=0.05)
+        self.qtd_entry.place(relx=0.56, rely=0.34, relwidth=0.15, relheight=0.05)
 
         self.ckb_Qtd = Label(self.frameup, text='Qtd', font='Ivy 11', bg=color("background"))
-        self.ckb_Qtd.place(relx=0.88, rely=0.37)
+        self.ckb_Qtd.place(relx=0.72, rely=0.34)
+
+        self.lb_qtd = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_qtd.place(relx=0.50, rely=0.42)
+
+        self.m2_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
+        self.m2_entry.place(relx=0.56, rely=0.42, relwidth=0.15, relheight=0.05)
+
+        self.ckb_m2 = Label(self.frameup, text='M²', font='Ivy 11', bg=color("background"))
+        self.ckb_m2.place(relx=0.72, rely=0.42)
 
         self.cadobs = Label(self.frameup, text="Descrição:", font="Ivy 13", background=color("background"))
         self.cadobs.place(relx=0.02, rely=0.51)
@@ -315,7 +353,7 @@ class ProductsView(ProductsController):
         global tree
         list = self.selectAllProducts()
 
-        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M²', 'R$ Unit']
+        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -323,8 +361,8 @@ class ProductsView(ProductsController):
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.87)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.87)
 
-        hd = ["nw", "nw", "nw", "center", "center", "center"]
-        h = [10, 260, 190, 70, 70, 70]
+        hd = ["nw", "nw", "nw", "center","center", "center", "center"]
+        h = [10, 260, 190, 70, 70,70, 70]
         n = 0
 
         for col in self.list_header:

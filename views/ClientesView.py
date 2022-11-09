@@ -535,12 +535,12 @@ class ClientsView(ClientsController):
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
 
-        self.cadlead = Label(self.frameup, text="Lead:", font="Ivy 13", background=color("background"))
-        self.cadlead.place(relx=0.028, rely=0.49)
+        self.cadlead = Label(self.frameup, text="Como nos conheceu:", font="Ivy 13", background=color("background"))
+        self.cadlead.place(relx=0.02, rely=0.49)
         self.lead_entry = Entry(self.frameup, font='Ivy 13')
-        self.lead_entry.place(relx=0.15, rely=0.49, relwidth=0.82, relheight=0.05)
+        self.lead_entry.place(relx=0.40, rely=0.49, relwidth=0.57, relheight=0.05)
 
-        self.cadobs = Label(self.frameup, text="Observação Fiscal:", font="Ivy 13", background=color("background"))
+        self.cadobs = Label(self.frameup, text="Observação:", font="Ivy 13", background=color("background"))
         self.cadobs.place(relx=0.02, rely=0.56)
         self.obs_entry = Text(self.frameup, font='Ivy 14')
         self.obs_entry.place(relx=0.03, rely=0.62, relwidth=0.94, relheight=0.20)

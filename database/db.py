@@ -59,6 +59,7 @@ class Database:
                 material TEXT,
                 kg REAL,
                 m REAL,
+                m2 REAL,
                 unit REAL,
                 descricao TEXT,
                 tipo
