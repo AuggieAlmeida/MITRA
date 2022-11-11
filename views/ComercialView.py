@@ -74,39 +74,6 @@ class ComercialController:
     def disconnect_db(self):
         self.conn.close()
 
-    def insertClient(self):
-        self.getEntry()
-        if self.name == '':
-            messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
-        else:
-            self.getEntry()
-            self.clean()
-            self.connect_db()
-            self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                                (self.name, self.email, self.cp, self.occup, self.datecad, self.birthday,
-                                 self.obs))
-            self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
-            self.disconnect_db()
-
-    def insertCep(self):
-        self.getEntry()
-        self.getCepEntry()
-        if self.cep == '' or self.n == '':
-            messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
-        else:
-            self.getEntry()
-            self.cleancep()
-            self.connect_db()
-            self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, cep, num, compl)
-                VALUES (?, ?, ?, ?)""",
-                                (self.cod, self.cep, self.n, self.compl))
-            self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
-            self.disconnect_db()
-            self.treecepReload()
-
     def selectAllClients(self):
         auxlist = []
         self.connect_db()
@@ -142,48 +109,6 @@ class ComercialController:
         self.disconnect_db()
         return auxlist
 
-    def updateClient(self):
-        self.getEntry()
-        self.connect_db()
-        self.cursor.execute(""" UPDATE tb_clientes SET
-            nome = ?,
-            email = ?,
-            cp = ?,
-            profissao = ?,
-            nascimento = ?,
-            fiscal = ?
-            WHERE cod = ?""", (self.name, self.email, self.cp, self.occup, self.birthday, self.obs, self.cod))
-        self.conn.commit()
-        self.disconnect_db()
-
-    def deleteClient(self):
-        self.getEntry()
-        self.msg_box = messagebox.askquestion('Deletar cliente',
-                                              'Tem certeza que deseja deletar o cliente ' + self.name)
-        self.connect_db()
-        self.cursor.execute(""" DELETE FROM tb_clientes 
-            WHERE cod = ? """, (self.cod,))
-        self.conn.commit()
-        self.disconnect_db()
-        self.clean()
-
-    def read_csv(self, filename):
-        self.getEntry()
-        with open(filename, "rt") as f:
-            reader = csv.reader(f)
-            next(csv.reader(f), None)
-
-            for entry in reader:
-                try:
-                    self.connect_db()
-                    self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""", (entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]))
-                    self.conn.commit()
-                    self.disconnect_db()
-
-                except csv.Error as e:
-                    print(f'Line: {reader.line_num}, Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
-
     def searchClientByName(self):
         self.connect_db()
         self.name_entry.insert(END, '%')
@@ -204,60 +129,11 @@ class ComercialController:
 
         return treev_list
 
-    def treecepReload(self):
-        global treecep
-        listcep = self.selectAllCep()
-
-        self.adress_header = ['CEP', 'Num', 'Complemento']
-
-        ceptree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.adress_header, show="headings")
-        self.vsb2 = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
-
-        ceptree.configure(yscrollcommand=self.vsb2.set)
-        ceptree.place(relx=0.53, rely=0.81, relheight=0.17, relwidth=0.40)
-        self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
-
-        hd = ["nw", "nw", "nw"]
-        h = [100, 100, 100]
-        n = 0
-
-        for col in self.adress_header:
-            ceptree.heading(col, text=col.title(), anchor=CENTER)
-            ceptree.column(col, width=h[n], anchor=hd[n])
-            n += 1
-
-        for item in listcep:
-            ceptree.insert('', END, values=item)
-
-    def treecttReload(self):
-        global ctttree
-        listcep = self.selectAllCep()
-
-        self.ctt_header = ['', 'Numero', 'Tipo']
-
-        ctttree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.ctt_header, show="headings")
-        self.vsb3 = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
-
-        ctttree.configure(yscrollcommand=self.vsb3.set)
-        ctttree.place(relx=0.03, rely=0.795, relheight=0.17, relwidth=0.40)
-        self.vsb3.place(relx=0.43, rely=0.795, relheight=0.17, relwidth=0.03)
-
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 100, 100]
-        n = 0
-
-        for col in self.ctt_header:
-            ctttree.heading(col, text=col.title(), anchor=CENTER)
-            ctttree.column(col, width=h[n], anchor=hd[n])
-            n += 1
-
     def OnDoubleClick(self, event):
         self.clean()
         cod = self.treeSelect()
         values = self.selectClientbyId(int(cod[0]))
-        self.setEntry(values[0][0], values[0][1], values[0][2], values[0][3], values[0][4], values[0][5],
-                      values[0][6], values[0][7])
-        self.treecepReload()
+        print(values)
 
 
 class ComercialView(ComercialController):
@@ -279,6 +155,10 @@ class ComercialView(ComercialController):
         self.init_layout()
         self.init_buttons()
 
+    def init_budget(self):
+        self.init_layout()
+        self.init_buttons()
+
     def init_layout(self):
         self.bgImg = PhotoImage(file=r'assets\CARD.png')
         self.bg = Label(self.frameup, image=self.bgImg)
@@ -288,55 +168,32 @@ class ComercialView(ComercialController):
         self.bg2 = Label(self.framedown, image=self.bg2Img, bg=color("background2"))
         self.bg2.place(relwidth=1, relheight=1)
 
-        self.title = Label(self.frameup, text="Comercial", font="Ivy 18 bold", bg="#CEDCE4")
-        self.title.place(relx=0.008, rely=0.005, relwidth=0.3, height= 28)
-
         Label(self.frameup, text="                                                 ", font="Ivy 13 bold",
               bg=color("background-bar")). \
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
     def init_buttons(self):
 
-        self.rprtImg = PhotoImage(file=r'assets\report.png')
+        self.rprtImg = PhotoImage(file=r'assets\retornar.png')
         self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
                                 command=ClientesCadView.ClientsCadView)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
 
-        self.insrtImg = PhotoImage(file=r"assets\INSERIR.png")
-        self.bt_insert = Button(self.frameup, image=self.insrtImg, relief='flat',
-                                command=self)
-        self.bt_insert.place(relx=0.020, rely=0.88, relwidth=0.225, relheight=0.1)
-
-        self.attImg = PhotoImage(file=r"assets\ATUALIZAR.png")
-        self.bt_update = Button(self.frameup, image=self.attImg, relief='flat',
-                                command=self)
-        self.bt_update.place(relx=0.265, rely=0.88, relwidth=0.225, relheight=0.1)
-
-        self.dltImg = PhotoImage(file=r"assets\DELETAR.png")
-        self.bt_delete = Button(self.frameup, image=self.dltImg, relief='flat',
-                                command=self)
-        self.bt_delete.place(relx=0.51, rely=0.88, relwidth=0.225, relheight=0.1)
-
-        self.imprtImg = PhotoImage(file=r"assets\IMPORTAR.png")
-        self.bt_import = Button(self.frameup, image=self.imprtImg, relief='flat',
-                                command=self)
-        self.bt_import.place(relx=0.755, rely=0.88, relwidth=0.225, relheight=0.1)
-
     def init_tree(self):
         global tree
         list = self.selectAllClients()
 
-        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Profissão', 'Data de nascimento']
-        tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
-        self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
+        self.list_header = ['ID', 'Nome', 'Email', 'Documento']
+        tree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
+        self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.490)
-        self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.490)
+        tree.place(relx=0.02, rely=0.15, relwidth=0.93, relheight=0.25)
+        self.vsb.place(relx=0.94, rely=0.15, relwidth=0.04, relheight=0.25)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 170, 190, 90, 120, 100]
+        hd = ["nw", "nw", "nw", "nw"]
+        h = [10, 120, 120, 90]
         n = 0
 
         for col in self.list_header:
@@ -353,21 +210,43 @@ class ComercialView(ComercialController):
 
         self.ctt_header = ['', 'Numero', 'Tipo']
 
-        ctttree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.ctt_header, show="headings")
-        self.vsb3 = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
+        ctttree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.ctt_header, show="headings")
+        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         ctttree.configure(yscrollcommand=self.vsb3.set)
-        ctttree.place(relx=0.03, rely=0.81, relheight=0.17, relwidth=0.40)
-        self.vsb3.place(relx=0.43, rely=0.81, relheight=0.17, relwidth=0.03)
+        ctttree.place(relx=0.02, rely=0.42, relheight=0.17, relwidth=0.45)
+        self.vsb3.place(relx=0.46, rely=0.42, relheight=0.17, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 100, 100]
+        h = [10, 100, 50]
         n = 0
 
         for col in self.ctt_header:
             ctttree.heading(col, text=col.title(), anchor=CENTER)
             ctttree.column(col, width=h[n], anchor=hd[n])
             n += 1
+
+        global ceptree
+
+        self.adress_header = ['id', 'CEP', 'Num', 'Compl.', 'endereço']
+
+        ceptree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.adress_header, show="headings")
+        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+
+        ceptree.configure(yscrollcommand=self.vsb2.set)
+        ceptree.place(relx=0.02, rely=0.62, relheight=0.17, relwidth=0.450)
+        self.vsb2.place(relx=0.46, rely=0.62, relheight=0.17, relwidth=0.03)
+
+        hd = ["nw", "nw", "nw", "nw", "center", "center"]
+        h = [10, 75, 60, 60, 100]
+        n = 0
+
+        for col in self.adress_header:
+            ceptree.heading(col, text=col.title(), anchor=CENTER)
+            ceptree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+
 
     def init_lists(self):
         self.rmvImg = PhotoImage(file=r'assets\rmv.png')

@@ -53,7 +53,7 @@ class App:
         db.Database().struct_db()
         self.frames()
         self.menu_buttons()
-        self.init_home()
+        self.init_comercial()
         root.mainloop()
 
     def home(self):
@@ -118,7 +118,7 @@ class App:
         self.btnclients.place(x=820, rely=0, width=70, height=60)
 
         self.ordersImg = PhotoImage(file=r'assets\3.png')
-        self.btnorders = Button(self.framebar, image=self.ordersImg, relief='flat', command=self.reset_page)
+        self.btnorders = Button(self.framebar, image=self.ordersImg, relief='flat', command=self.init_comercial)
         self.btnorders.place(x=900, rely=0, width=70, height=60)
 
         self.productsImg = PhotoImage(file=r'assets\4.png')
