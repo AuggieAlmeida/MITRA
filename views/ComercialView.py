@@ -147,8 +147,7 @@ class ComercialView(ComercialController):
         self.selectAllClients()
 
     def setup(self):
-        self.init_Comercial()
-        self.init_tree()
+        self.init_budget()
         self.init_lists()
 
     def init_Comercial(self):
@@ -158,6 +157,7 @@ class ComercialView(ComercialController):
     def init_budget(self):
         self.init_layout()
         self.init_buttons()
+        self.init_treebudget()
 
     def init_layout(self):
         self.bgImg = PhotoImage(file=r'assets\CARD.png')
@@ -179,8 +179,7 @@ class ComercialView(ComercialController):
                                 command=ClientesCadView.ClientsCadView)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
-
-    def init_tree(self):
+    def init_treebudget(self):
         global tree
         list = self.selectAllClients()
 
