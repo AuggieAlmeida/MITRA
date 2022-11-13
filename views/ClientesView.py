@@ -291,8 +291,11 @@ class ClientsController:
                     self.disconnect_db()
 
                 except csv.Error as e:
-                    print(f'Line: {reader.line_num}, Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
+                    print(f'Line: {reader.line_num} Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
 
+                else:
+                    messagebox.showerror(f'Line: {reader.line_num}', f'Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
+                    break
     def searchClientByName(self):
         self.connect_db()
         self.name_entry.insert(END, '%')

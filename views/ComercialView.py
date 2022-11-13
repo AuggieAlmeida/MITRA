@@ -173,7 +173,6 @@ class ComercialView(ComercialController):
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
     def init_buttons(self):
-
         self.rprtImg = PhotoImage(file=r'assets\retornar.png')
         self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
                                 command=ClientesCadView.ClientsCadView)
