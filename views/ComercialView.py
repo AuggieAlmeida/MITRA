@@ -21,10 +21,11 @@ class ComercialController:
         pass
 
     def getEntry(self):
-        pass
+        self.lb_name.get("text")
 
-    def setEntry(self, cod, name, email, cp, occup, birth, datecad, obs):
-        pass
+    def setEntry(self, cod, name):
+        self.lb_name.insert(END, name)
+
 
     def getCepEntry(self):
         pass
@@ -33,7 +34,7 @@ class ComercialController:
         pass
 
     def clean(self):
-        pass
+        self.lb_name.delete(0, END)
 
     def cleancep(self):
         pass
@@ -108,18 +109,16 @@ class ComercialController:
         self.clean()
         cod = self.treeSelect()
         values = self.selectClientbyId(int(cod[0]))
-        print(values)
+        self.setEntry(values[0][0], values[0][1])
 
 
 class ComercialView(ComercialController):
     def __init__(self, frameup, framedown, framebar):
-        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Nascimento', 'Profissão']
         self.list_cli = ttk.Treeview
         self.framedown = framedown
         self.frameup = frameup
         self.framebar = framebar
         self.setup()
-        self.selectAllClients()
 
     def setup(self):
         self.init_budget()
@@ -127,7 +126,6 @@ class ComercialView(ComercialController):
 
     def init_Comercial(self):
         self.init_layout()
-        self.init_buttons()
 
     def init_budget(self):
         self.init_layout()
@@ -153,10 +151,10 @@ class ComercialView(ComercialController):
                                 command=ClientesCadView.ClientsCadView)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
-        self.name = Label(self.frameup, text='Nome: ', font='Ivy 13', bg=color("background"))
+        self.name = Label(self.frameup, text='Cliente: ', font='Ivy 13', bg=color("background"))
         self.name.place(relx=0.02, y=40, relheight=0.08, relwidth=0.15)
         self.name_entry = Entry(self.frameup, font='Ivy 14')
-        self.name_entry.place(relx=0.16, y=45, relwidth=0.6, relheight=0.05)
+        self.name_entry.place(relx=0.17, y=45, relwidth=0.6, relheight=0.05)
 
         self.srchImg = PhotoImage(file=r"assets\procurar.png")
         self.bt_srch = Button(self.frameup, image=self.srchImg, relief='flat', background=color("background"),
@@ -167,7 +165,23 @@ class ComercialView(ComercialController):
         self.bt_clr = Button(self.frameup, image=self.clrImg, relief='flat', background=color("background"),
                              command=self)
         self.bt_clr.place(relx=0.90, y=40, relwidth=0.08, relheight=0.06)
-        
+
+        self.lb_clientref = Label(self.frameup, text="Nome: ", background=color("background"))
+        self.lb_clientref.place(relx=0.52, rely=0.45, relheight=0.06, relwidth=0.1)
+        self.lb_name = Entry(self.frameup, background=color("background"))
+        self.lb_name.place(relx=0.62, rely=0.45, relheight=0.06, relwidth=0.36)
+
+        self.lb_cepref = Label(self.frameup, text="End: ", background=color("background"))
+        self.lb_cepref.place(relx=0.52, rely=0.55, relheight=0.06, relwidth=0.1)
+        self.lb_cep = Entry(self.frameup, background=color("background"))
+        self.lb_cep.place(relx=0.62, rely=0.55, relheight=0.06, relwidth=0.36)
+
+        self.lb_numref = Label(self.frameup, text="Num: ", background=color("background"))
+        self.lb_numref.place(relx=0.52, rely=0.65, relheight=0.06, relwidth=0.1)
+        self.lb_num = Entry(self.frameup, background=color("background"))
+        self.lb_num.place(relx=0.62, rely=0.65, relheight=0.06, relwidth=0.36)
+
+
 
     def init_treebudget(self):
         global tree
