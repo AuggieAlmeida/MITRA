@@ -21,47 +21,22 @@ class ComercialController:
         pass
 
     def getEntry(self):
-        self.cod = int(self.lb_id.cget("text"))
-        self.name = self.name_entry.get()
-        self.email = self.email_entry.get()
-        self.cp = self.cod_entry.get()
-        self.occup = self.occup_entry.get()
-        self.birthday = self.birth.get()
-        self.datecad = date.today().strftime("%d/%m/%Y")
-        self.obs = self.obs_entry.get("1.0", END)
+        pass
 
     def setEntry(self, cod, name, email, cp, occup, birth, datecad, obs):
-        self.lb_id.config(text=cod)
-        self.name_entry.insert(END, name)
-        self.email_entry.insert(END, email)
-        self.cod_entry.insert(END, cp)
-        self.birth.insert(END, birth)
-        self.occup_entry.insert(END, occup)
-        self.lb_date.config(text=datecad)
-        self.obs_entry.insert("1.0", obs)
+        pass
 
     def getCepEntry(self):
-        self.cep = self.cep_entry.get()
-        self.n = self.n_entry.get()
-        self.compl = self.compl_entry.get()
+        pass
 
     def setCepEntry(self, cep, n, compl):
-        self.cep.insert(END, cep)
-        self.n.insert(END, n)
-        self.compl.insert(END, compl)
+        pass
 
     def clean(self):
-        self.cod_entry.delete(0, END)
-        self.name_entry.delete(0, END)
-        self.email_entry.delete(0, END)
-        self.occup_entry.delete(0, END)
-        self.birth.delete(0, END)
-        self.obs_entry.delete("1.0", END)
+        pass
 
     def cleancep(self):
-        self.cep_entry.delete(0, END)
-        self.n_entry.delete(0, END)
-        self.compl_entry.delete(0, END)
+        pass
 
     def connect_db(self):
         db_path = os.path.join(
@@ -156,7 +131,7 @@ class ComercialView(ComercialController):
 
     def init_budget(self):
         self.init_layout()
-        self.init_buttons()
+        self.init_budgets()
         self.init_treebudget()
 
     def init_layout(self):
@@ -172,11 +147,27 @@ class ComercialView(ComercialController):
               bg=color("background-bar")). \
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
-    def init_buttons(self):
+    def init_budgets(self):
         self.rprtImg = PhotoImage(file=r'assets\retornar.png')
         self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
                                 command=ClientesCadView.ClientsCadView)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
+
+        self.name = Label(self.frameup, text='Nome: ', font='Ivy 13', bg=color("background"))
+        self.name.place(relx=0.02, y=40, relheight=0.08, relwidth=0.15)
+        self.name_entry = Entry(self.frameup, font='Ivy 14')
+        self.name_entry.place(relx=0.16, y=45, relwidth=0.6, relheight=0.05)
+
+        self.srchImg = PhotoImage(file=r"assets\procurar.png")
+        self.bt_srch = Button(self.frameup, image=self.srchImg, relief='flat', background=color("background"),
+                              command=self)
+        self.bt_srch.place(relx=0.80, y=40, relwidth=0.08, relheight=0.06)
+
+        self.clrImg = PhotoImage(file=r"assets\lixo.png")
+        self.bt_clr = Button(self.frameup, image=self.clrImg, relief='flat', background=color("background"),
+                             command=self)
+        self.bt_clr.place(relx=0.90, y=40, relwidth=0.08, relheight=0.06)
+        
 
     def init_treebudget(self):
         global tree
