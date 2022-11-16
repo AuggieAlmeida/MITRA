@@ -26,12 +26,11 @@ class ComercialController:
     def setEntry(self, cod, name):
         self.lb_name.insert(END, name)
 
-
     def getCepEntry(self):
-        pass
+        self.lb_cep.get()
 
-    def setCepEntry(self, cep, n, compl):
-        pass
+    def setCepEntry(self, end):
+        self.lb_cep.insert(END, f'{end}')
 
     def clean(self):
         self.lb_name.delete(0, END)
@@ -105,11 +104,97 @@ class ComercialController:
 
         return treev_list
 
+    def treeReload(self, list):
+
+        global tree
+
+        listClient = list
+
+        self.list_header = ['ID', 'Nome', 'Email', 'Documento']
+        tree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
+        self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+
+        tree.configure(yscrollcommand=self.vsb.set)
+        tree.place(relx=0.02, rely=0.15, relwidth=0.93, relheight=0.25)
+        self.vsb.place(relx=0.94, rely=0.15, relwidth=0.04, relheight=0.25)
+
+        hd = ["nw", "nw", "nw", "nw"]
+        h = [10, 120, 120, 90]
+        n = 0
+
+        for col in self.list_header:
+            tree.heading(col, text=col.title(), anchor=CENTER)
+            tree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for item in listClient:
+            tree.insert('', END, values=item)
+
+        self.treecepReload()
+        self.treecttReload()
+
+        tree.bind("<Double-1>", self.OnDoubleClick)
+
+    def treecepReload(self):
+        global ceptree
+        listcep = self.selectAllCep()
+
+        self.adress_header = ['id', 'CEP', 'Num', 'Compl.', 'endereço']
+
+        ceptree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.adress_header, show="headings")
+        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+
+        ceptree.configure(yscrollcommand=self.vsb2.set)
+        ceptree.place(relx=0.02, rely=0.62, relheight=0.17, relwidth=0.450)
+        self.vsb2.place(relx=0.46, rely=0.62, relheight=0.17, relwidth=0.03)
+
+        hd = ["nw", "nw", "nw", "nw", "center", "center"]
+        h = [10, 75, 60, 60, 100]
+        n = 0
+
+        for col in self.adress_header:
+            ceptree.heading(col, text=col.title(), anchor=CENTER)
+            ceptree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for item in listcep:
+            ceptree.insert('', END, values=item)
+
+        ceptree.bind("<Double-1>", self.OnDoubleClick2)
+
+    def treecttReload(self):
+        global ctttree
+        listctt = self.selectAllCtt()
+
+        self.ctt_header = ['', 'Numero', 'Tipo']
+
+        ctttree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.ctt_header, show="headings")
+        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+
+        ctttree.configure(yscrollcommand=self.vsb3.set)
+        ctttree.place(relx=0.02, rely=0.42, relheight=0.17, relwidth=0.45)
+        self.vsb3.place(relx=0.46, rely=0.42, relheight=0.17, relwidth=0.03)
+
+        hd = ["nw", "nw", "nw", "nw", "center", "center"]
+        h = [10, 100, 50]
+        n = 0
+
+        for col in self.ctt_header:
+            ctttree.heading(col, text=col.title(), anchor=CENTER)
+            ctttree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for item in listctt:
+            ctttree.insert('', END, values=item)
+
+        ctttree.bind("<Double-1>", self.OnDoubleClick3)
+
     def OnDoubleClick(self, event):
         self.clean()
         cod = self.treeSelect()
         values = self.selectClientbyId(int(cod[0]))
         self.setEntry(values[0][0], values[0][1])
+
 
 
 class ComercialView(ComercialController):
@@ -147,9 +232,9 @@ class ComercialView(ComercialController):
 
     def init_budgets(self):
         self.rprtImg = PhotoImage(file=r'assets\retornar.png')
-        self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
+        self.bt_return = Button(self.framebar,image=self.rprtImg, relief='flat',
                                 command=ClientesCadView.ClientsCadView)
-        self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
+        self.bt_return.place(relx=0.8, rely=0.08, width=70, height=60)
 
         self.name = Label(self.frameup, text='Cliente: ', font='Ivy 13', bg=color("background"))
         self.name.place(relx=0.02, y=40, relheight=0.08, relwidth=0.15)
@@ -166,22 +251,25 @@ class ComercialView(ComercialController):
                              command=self)
         self.bt_clr.place(relx=0.90, y=40, relwidth=0.08, relheight=0.06)
 
+        self.lb_idref = Label(self.frameup, text="ID: ", font='Ivy 16', background=color("background"))
+        self.lb_idref.place(relx=0.52, rely=0.42, relheight=0.06, relwidth=0.1)
+        self.cod = Label(self.frameup, text="0", font='Ivy 16', background=color("background"), justify=LEFT)
+        self.cod.place(relx=0.60, rely=0.42, relheight=0.06, relwidth=0.20)
+
         self.lb_clientref = Label(self.frameup, text="Nome: ", background=color("background"))
-        self.lb_clientref.place(relx=0.52, rely=0.45, relheight=0.06, relwidth=0.1)
+        self.lb_clientref.place(relx=0.52, rely=0.50, relheight=0.06, relwidth=0.1)
         self.lb_name = Entry(self.frameup, background=color("background"))
-        self.lb_name.place(relx=0.62, rely=0.45, relheight=0.06, relwidth=0.36)
+        self.lb_name.place(relx=0.62, rely=0.50, relheight=0.06, relwidth=0.36)
 
         self.lb_cepref = Label(self.frameup, text="End: ", background=color("background"))
-        self.lb_cepref.place(relx=0.52, rely=0.55, relheight=0.06, relwidth=0.1)
+        self.lb_cepref.place(relx=0.52, rely=0.60, relheight=0.06, relwidth=0.1)
         self.lb_cep = Entry(self.frameup, background=color("background"))
-        self.lb_cep.place(relx=0.62, rely=0.55, relheight=0.06, relwidth=0.36)
+        self.lb_cep.place(relx=0.62, rely=0.60, relheight=0.06, relwidth=0.36)
 
         self.lb_numref = Label(self.frameup, text="Num: ", background=color("background"))
-        self.lb_numref.place(relx=0.52, rely=0.65, relheight=0.06, relwidth=0.1)
+        self.lb_numref.place(relx=0.52, rely=0.70, relheight=0.06, relwidth=0.1)
         self.lb_num = Entry(self.frameup, background=color("background"))
-        self.lb_num.place(relx=0.62, rely=0.65, relheight=0.06, relwidth=0.36)
-
-
+        self.lb_num.place(relx=0.62, rely=0.70, relheight=0.06, relwidth=0.36)
 
     def init_treebudget(self):
         global tree
@@ -248,8 +336,6 @@ class ComercialView(ComercialController):
             ceptree.heading(col, text=col.title(), anchor=CENTER)
             ceptree.column(col, width=h[n], anchor=hd[n])
             n += 1
-
-
 
     def init_lists(self):
         self.rmvImg = PhotoImage(file=r'assets\rmv.png')
