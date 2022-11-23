@@ -4,9 +4,10 @@
     <list default="true" id="79a4d406-2001-49dc-ad61-e9c514374f29" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" afterPath="$PROJECT_DIR$/SPDB.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/clientes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/clientes.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ClientesView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ClientesView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orcamentos/1_nome_23-11-2022_6465299.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orcamentos/1_nome_23-11-2022_6784709.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orcamentos/1_nome_23-11-2022_8841308.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orcamentos/1_nome_23-11-2022_99366226368.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ComercialView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ComercialView.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

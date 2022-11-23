@@ -918,7 +918,8 @@ class ComercialView(ComercialController):
 
         csv_path = os.path.join(
             glv.get_variable("APP_PATH"),
-            "orcamentos",
+            "orçamentos",
+            "Reg",
             f"{self.link}.csv"
         )
 
@@ -954,7 +955,14 @@ class ComercialView(ComercialController):
             messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
             self.disconnect_db()
 
+        self.connect_db()
+        id = self.link
+        self.cursor.execute(""" SELECT cod FROM tb_comercial 
+                WHERE link = ?""", (id,))
+        row = self.cursor.fetchone()
+        self.disconnect_db()
 
+        self.lb_idbud.config(text=row[0])
 
     def gencsv(self):
         pass
