@@ -886,6 +886,7 @@ class ClientsView(ClientsController):
                 dataline.append(rowctt[0])
 
             data.append(dataline)
+        print(csv_path)
 
         file = open(csv_path, 'w+', newline='')
 

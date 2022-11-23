@@ -64,5 +64,23 @@ class Database:
                 descricao TEXT
             );
         """)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tb_comercial (
+                cod INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                cliente TEXT NOT NULL,
+                cliente_cod INTEGER,
+                cep_cod INTEGER NOT NULL,
+                linha INTEGER,
+                subtotal REAL,
+                discount REAL,
+                data TEXT,
+                total REAL,
+                obs TEXT,
+                hist TEXT,
+                status TEXT,
+                tipo TEXT,
+                link TEXT
+            );
+        """)
         self.conn.commit()
         self.disconnect_db()

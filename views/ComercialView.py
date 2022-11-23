@@ -1,9 +1,15 @@
+import csv
+import random
 import sqlite3
 import os
 
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from random import randrange
+import csv
+
+from datetime import date
 
 from lib.colours import color
 import lib.global_variable as glv
@@ -15,20 +21,22 @@ class ComercialController:
 
     def getEntry(self):
         self.cod = self.lb_id.cget("text")
-        self.lb_name.get()
+        self.name = self.lb_name.get()
 
     def setEntry(self, cod, name):
         self.lb_id.config(text=cod)
         self.lb_name.insert(END, name)
 
     def getCepEntry(self):
-        self.lb_cep.get()
+        self.cepcod = self.lb_cepid.cget("text")
+        self.cep = self.lb_cep.get()
 
-    def setCepEntry(self, end):
+    def setCepEntry(self, cod ,end):
+        self.lb_cepid.config(text=cod)
         self.lb_cep.insert(END, f'{end}')
 
     def getCttEntry(self):
-        self.lb_num.get()
+        self.num = self.lb_num.get()
 
     def setCttEntry(self, end):
         self.lb_num.insert(END, f'{end}')
@@ -53,6 +61,7 @@ class ComercialController:
         self.lb_name.delete(0, END)
 
     def cleancep(self):
+        self.lb_cepid.config(text="0")
         self.lb_cep.delete(0, END)
 
     def cleanctt(self):
@@ -307,7 +316,7 @@ class ComercialController:
         self.cleancep()
         cepcod = self.ceptreeSelect()
         values = self.selectCepbyId(cepcod[0])
-        self.setCepEntry(values[0][1])
+        self.setCepEntry(values[0][0], values[0][1])
         self.lb_cep.config(state = DISABLED)
 
     def OnDoubleClick3(self, event):
@@ -458,6 +467,9 @@ class ComercialView(ComercialController):
         self.lb_cep = Entry(self.frameup, background=color("background"))
         self.lb_cep.place(relx=0.62, rely=0.70, relheight=0.06, relwidth=0.36)
 
+        self.lb_cepid = Label(self.frameup, text="0", font='Ivy 16', background=color("background"),
+                           anchor="w", justify=LEFT)
+
         self.lb_numref = Label(self.frameup, text="Num: ", background=color("background"))
         self.lb_numref.place(relx=0.525, rely=0.60, relheight=0.06, relwidth=0.1)
         self.lb_num = Entry(self.frameup, background=color("background"))
@@ -466,17 +478,23 @@ class ComercialView(ComercialController):
     def init_budgets2(self):
         self.lblf = Label(self.framedown, font=('arial', 13, 'bold'), text="Frete:", bg=color("background"),
                           anchor='e', justify=RIGHT)
-        self.lblf.place(relx=0.25, rely=0.68, relwidth=0.1, relheight=0.08)
+        self.lblf.place(relx=0.0148, rely=0.66, relwidth=0.07, relheight=0.08)
         self.lblfrete = Label(self.framedown, font=('arial', 13, 'bold'), text="Não será cobrado frete",
                               bg=color("background"), anchor='w', justify=LEFT)
-        self.lblfrete.place(relx=0.35, rely=0.68, relwidth=0.6, relheight=0.08)
+        self.lblfrete.place(relx=0.0835, rely=0.66, relwidth=0.6, relheight=0.08)
 
         self.lblv = Label(self.framedown, font=('arial', 13, 'bold'), text="Visita:", bg=color("background"),
-                          anchor='e', justify=RIGHT)
-        self.lblv.place(relx=0.25, rely=0.78, relwidth=0.1, relheight=0.08)
+                          anchor='w', justify=RIGHT)
+        self.lblv.place(relx=0.018, rely=0.71, relwidth=0.7, relheight=0.08)
         self.lblvisita = Label(self.framedown, font=('arial', 13, 'bold'), text="Não será cobrada visita",
                                bg=color("background"), anchor='w', justify=LEFT)
-        self.lblvisita.place(relx=0.35, rely=0.78, relwidth=0.4, relheight=0.08)
+        self.lblvisita.place(relx=0.0835, rely=0.71, relwidth=0.4, relheight=0.08)
+
+        self.lblobs = Label(self.framedown, font=('arial', 13), text="Descrição do serviço:", bg=color("background"),
+                          anchor='e', justify=RIGHT)
+        self.lblobs.place(relx=0.19, rely=0.80, relwidth=0.27, relheight=0.08)
+        self.obs_entry = Text(self.framedown, font=('arial', 10))
+        self.obs_entry.place(relx=0.258, rely=0.86, relwidth=0.33, relheight=0.10)
 
         self.lblSubTotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Subtotal", bg=color("background"),
                                  anchor='e', justify=RIGHT)
@@ -561,8 +579,8 @@ class ComercialView(ComercialController):
     def init_budgetButtons(self):
         self.svbudImg = PhotoImage(file=r"assets\salvarorc.png")
         self.bt_savebudget = Button(self.framedown, image=self.svbudImg, relief='flat',
-                                command=self)
-        self.bt_savebudget.place(relx=0.022, rely=0.7, height=100, width=130)
+                                command=self.saveorc)
+        self.bt_savebudget.place(relx=0.022, rely=0.8, height=100, width=130)
 
         self.gnrtSale = PhotoImage(file=r"assets\genven.png")
         self.bt_genSale = Button(self.frameup, image=self.gnrtSale, relief='flat',
@@ -576,7 +594,7 @@ class ComercialView(ComercialController):
 
         self.prntCsv = PhotoImage(file=r"assets\printcsv.png")
         self.printCsv = Button(self.frameup, image=self.prntCsv, relief='flat',
-                                command=self)
+                                command=self.gencsv)
         self.printCsv.place(relx=0.75, rely=0.88, relwidth=0.225, relheight=0.1)
 
     def init_treecomercial(self):
@@ -598,7 +616,6 @@ class ComercialView(ComercialController):
             tree.heading(col, text=col.title(), anchor=CENTER)
             tree.column(col, width=h[n], anchor=hd[n])
             n += 1
-
 
         tree.bind("<Double-1>", self.OnDoubleClick)
 
@@ -875,4 +892,70 @@ class ComercialView(ComercialController):
         self.total.delete(0, END)
         self.total.insert(END, str(f'R$ {self.totalvalue:.2f}'))
         self.total.config(state=DISABLED)
+
+    def saveorc(self):
+        self.sumTotal()
+        if self.lb_name.get() == "":
+            messagebox.showerror("Erro", "Escolha ao menos um cliente para vincular à esta venda.")
+            return
+        else:
+            self.getEntry()
+
+        if self.lb_num.get() != "":
+            self.getCttEntry()
+
+        self.getCepEntry()
+        if self.cepcod == "0":
+            messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
+            return
+        else:
+            pass
+
+        self.datecad = date.today().strftime("%d-%m-%Y")
+
+        self.zip = random.randint(10000000000, 99999999999)
+        self.link = f"{self.cod}_{self.name}_{self.datecad}_{self.zip}"
+
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            "orcamentos",
+            f"{self.link}.csv"
+        )
+
+        data = []
+        for row_id in budgetTree.get_children():
+            row = budgetTree.item(row_id)['values']
+            data.append(row)
+        file = open(csv_path, 'w+', newline='')
+
+        with file:
+            write = csv.writer(file)
+            write.writerows(data)
+
+        self.subtotal = self.subTotal.get()
+        self.disc = self.discount.get()
+        self.tot = self.total.get()
+        self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
+        self.status = ""
+        self.hist = ""
+        self.tipo = "orçamento"
+
+        if self.cod == "0":
+            messagebox.showerror('Erro', 'Escolha um usuário para registrar.')
+        else:
+            self.cleanctt()
+            self.connect_db()
+            self.cursor.execute(""" INSERT INTO tb_comercial (cliente, cliente_cod, cep_cod, linha, subtotal, discount,
+             data, total, obs, hist, status, tipo, link) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                        (self.name, self.cod, self.cepcod, self.num, self.subtotal, self.disc, self.datecad, self.tot,
+                         self.obs, self.hist, self.status, self.tipo, self.link))
+            self.conn.commit()
+            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            self.disconnect_db()
+
+
+
+    def gencsv(self):
+        pass
 
