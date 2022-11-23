@@ -61,8 +61,7 @@ class Database:
                 m REAL,
                 m2 REAL,
                 unit REAL,
-                descricao TEXT,
-                tipo
+                descricao TEXT
             );
         """)
         self.conn.commit()

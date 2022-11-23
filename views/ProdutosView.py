@@ -28,7 +28,7 @@ class ProductsController:
         self.m = self.m_entry.get()
         self.m2 = self.m2_entry.get()
         self.qtd = self.qtd_entry.get()
-        self.obs = self.obs_entry.get("1.0", END)
+        self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
 
     def setEntry(self, cod, name, mat, kg, m, m2, qtd, obs):
         self.lb_id.config(text=cod)
@@ -63,22 +63,28 @@ class ProductsController:
     def insertProduct(self):
         self.getEntry()
         try:
-            if self.kg == "":
+            if self.kg == "" and float(self.kg) >= 0:
                 self.kg = 0
             else:
                 self.kg = float(self.kg.replace(",", "."))
-            if self.m == "":
+
+            if self.m == "" and float(self.m) >= 0:
                 self.m = 0
             else:
                 self.m = float(self.m.replace(",", "."))
-            if self.m2 == "":
+
+            if self.m2 == "" and float(self.m2) >= 0:
                 self.m2 = 0
             else:
                 self.m2 = float(self.m2.replace(",", "."))
-            if self.qtd == "":
+
+            if self.qtd == "" and float(self.qtd) >= 0:
                 self.qtd = 0
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
+            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
+                messagebox.showerror('Erro', 'Preço inválido')
+                return
         except:
             messagebox.showerror('Erro', 'Preço inválido')
         else:
@@ -138,6 +144,9 @@ class ProductsController:
                 self.qtd = 0
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
+            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
+                messagebox.showerror('Erro', 'Preço inválido')
+                return
         except:
             messagebox.showerror('Erro', 'Preço inválido')
         else:
@@ -331,6 +340,11 @@ class ProductsView(ProductsController):
         self.cadid.place(relx=0.02, rely=0.013)
         self.lb_id = Label(self.framedown, text="0", font="Ivy 20", background="#CEDCE4", justify=LEFT)
         self.lb_id.place(relx=0.07, rely=0.013)
+
+        self.kg_entry.insert(END, "0")
+        self.m_entry.insert(END, "0")
+        self.m2_entry.insert(END, "0")
+        self.qtd_entry.insert(END, "0")
 
     def init_buttons(self):
 

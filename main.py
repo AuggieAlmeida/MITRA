@@ -53,7 +53,7 @@ class App:
         db.Database().struct_db()
         self.frames()
         self.menu_buttons()
-        self.init_comercial()
+        self.init_home()
         root.mainloop()
 
     def home(self):

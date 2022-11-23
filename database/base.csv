@@ -1,6 +1,11 @@
-Nome,Email,Documento,Profissão,Nascimento,Fiscal
-NOME2TESTE,EMAIL2TESTE,23456345624,Professor,2022-10-25,ARROMBADO2
-NOME3TESTE,EMAIL3TESTE,23456345623,Dev,2022-10-25,
-NOME4TESTE,EMAIL4TESTE,23456345624,Murloc,,ARROMBADO4
-NOME5TESTE,EMAIL5TESTE,23456345623,Pintor,2022-10-25
-NOME6TESTE,EMAIL6TESTE,23456345624,,,
+nome,email,23456368828,profissao,nascimento,lead,fiscal
+nome,email,23456368824,profissao,nascimento,lead,fiscal
+nome,email,000000000001XX,profissao,nascimento,lead,fiscal
+nome,email,00000000000100,profissao,nascimento,lead,fiscal
+nome,email,00000000000111,profissao,nascimento,lead,fiscal
+nome,email,00000000000122,profissao,nascimento,lead,fiscal
+nome,email,23456368828,profissao,nascimento,lead,fiscal
+nome,email,23456368824,profissao,nascimento,lead,fiscal
+nome,email,000000000001XX,profissao,nascimento,lead,fiscal
+nome,email,00000000000100,profissao,nascimento,lead,fiscal
+nome,email,00000000000111,profissao,nascimento,lead,fiscal

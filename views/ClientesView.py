@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import csv
+
 import requests
 
 from tkinter import *
@@ -8,8 +9,6 @@ from tkinter import ttk
 from tkinter import messagebox
 
 from datetime import date
-
-from views import ClientesCadView
 
 from lib.colours import color
 import lib.global_variable as glv
@@ -27,7 +26,7 @@ class ClientsController:
         self.occup = self.occup_entry.get()
         self.birthday = self.birth.get()
         self.datecad = date.today().strftime("%d/%m/%Y")
-        self.obs = self.obs_entry.get("1.0", END)
+        self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
         self.lead = self.lead_entry.get()
 
     def setEntry(self, cod, name, email, cp, occup, birth, datecad, obs, lead):
@@ -68,12 +67,13 @@ class ClientsController:
             self.cmbctt.current(1)
 
     def clean(self):
-        self.lb_id.config(text=' ')
+        self.lb_id.config(text='0')
         self.cod_entry.delete(0, END)
         self.name_entry.delete(0, END)
         self.email_entry.delete(0, END)
         self.occup_entry.delete(0, END)
         self.birth.delete(0, END)
+        self.lb_date.config(text="")
         self.lead_entry.delete(0, END)
         self.obs_entry.delete("1.0", END)
 
@@ -119,43 +119,61 @@ class ClientsController:
     def insertCep(self):
         self.getEntry()
         self.getCepEntry()
-        self.link = f'https://viacep.com.br/ws/{self.cep}/json'
+        if self.cod == "0":
+            messagebox.showerror('Erro', 'Escolha um usuário para cadastrar um cep.')
+        else:
+            self.link = f'https://viacep.com.br/ws/{self.cep}/json'
 
-        request = requests.get(self.link)
-        self.dic = request.json()
-        self.log = self.dic['logradouro']
-        self.bai = self.dic['bairro']
-        self.loc = self.dic['localidade']
-        self.uf = self.dic['uf']
+            request = requests.get(self.link)
+            self.dic = request.json()
+            self.log = self.dic['logradouro']
+            self.bai = self.dic['bairro']
+            self.loc = self.dic['localidade']
+            self.uf = self.dic['uf']
 
-        self.end = f'{self.log} - {self.bai}. {self.loc} - {self.uf}'
-        self.cleancep()
-        self.connect_db()
-        self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, cep, num, compl, endereco)
-                VALUES (?, ?, ?, ?, ?)""",
-                            (self.cod, self.cep, self.n, self.compl, self.end))
-        self.conn.commit()
-        messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
-        self.disconnect_db()
-        self.treecepReload()
+            self.end = f'{self.log} - {self.bai}. {self.loc} - {self.uf}'
+            self.cleancep()
+            self.connect_db()
+            self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, cep, num, compl, endereco)
+                    VALUES (?, ?, ?, ?, ?)""",
+                                (self.cod, self.cep, self.n, self.compl, self.end))
+            self.conn.commit()
+            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            self.disconnect_db()
+            self.treecepReload()
 
     def insertCtt(self):
         self.getEntry()
         self.getCttEntry()
-        self.cleanctt()
-        self.connect_db()
-        self.cursor.execute(""" INSERT INTO tb_contatos (linha, tipo, cliente_cod) 
-                VALUES (?, ?, ?)""",
-                            (self.ctt, self.typectt, self.cod))
-        self.conn.commit()
-        messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
-        self.disconnect_db()
-        self.treecttReload()
+        if self.cod == "0":
+            messagebox.showerror('Erro', 'Escolha um usuário para cadastrar um número.')
+        else:
+            self.cleanctt()
+            self.connect_db()
+            self.cursor.execute(""" INSERT INTO tb_contatos (linha, tipo, cliente_cod) 
+                    VALUES (?, ?, ?)""",
+                                (self.ctt, self.typectt, self.cod))
+            self.conn.commit()
+            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            self.disconnect_db()
+            self.treecttReload()
 
     def selectAllClients(self):
         auxlist = []
         self.connect_db()
         self.cursor.execute(""" SELECT * FROM tb_clientes """)
+        self.info = self.cursor.fetchall()
+
+        for i in self.info:
+            auxlist.append(i)
+
+        self.disconnect_db()
+        return auxlist
+
+    def selectReportClients(self):
+        auxlist = []
+        self.connect_db()
+        self.cursor.execute(""" SELECT cod, nome, email, cp, profissao, nascimento, fiscal FROM tb_clientes """)
         self.info = self.cursor.fetchall()
 
         for i in self.info:
@@ -276,26 +294,6 @@ class ClientsController:
             self.cleanctt()
             self.treecttReload()
 
-    def read_csv(self, filename):
-        self.getEntry()
-        with open(filename, "rt") as f:
-            reader = csv.reader(f)
-            next(csv.reader(f), None)
-
-            for entry in reader:
-                try:
-                    self.connect_db()
-                    self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal)
-                VALUES (?, ?, ?, ?, ?, ?, ?)""", (entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]))
-                    self.conn.commit()
-                    self.disconnect_db()
-
-                except csv.Error as e:
-                    print(f'Line: {reader.line_num} Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
-
-                else:
-                    messagebox.showerror(f'Line: {reader.line_num}', f'Record: {entry[0], entry[1], entry[2], entry[3], self.datecad, entry[4], entry[5]}')
-                    break
     def searchClientByName(self):
         self.connect_db()
         self.name_entry.insert(END, '%')
@@ -335,7 +333,7 @@ class ClientsController:
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.490)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 170, 190, 90, 120, 100]
+        h = [30, 190, 190, 90, 100, 100]
         n = 0
 
         for col in self.list_header:
@@ -365,7 +363,7 @@ class ClientsController:
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 75, 60, 60, 100]
+        h = [10, 75, 40, 40, 100]
         n = 0
 
         for col in self.adress_header:
@@ -571,7 +569,7 @@ class ClientsView(ClientsController):
 
         self.rprtImg = PhotoImage(file=r'assets\report.png')
         self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
-                                command=ClientesCadView.ClientsCadView)
+                                command=self.genReport)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
         self.insrtImg = PhotoImage(file=r"assets\INSERIR.png")
@@ -607,7 +605,7 @@ class ClientsView(ClientsController):
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.490)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 170, 190, 90, 120, 100]
+        h = [30, 190, 190, 90, 100, 100]
         n = 0
 
         for col in self.list_header:
@@ -632,7 +630,7 @@ class ClientsView(ClientsController):
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 75, 60, 60, 100]
+        h = [10, 75, 40, 40, 100]
         n = 0
 
         for col in self.adress_header:
@@ -671,10 +669,10 @@ class ClientsView(ClientsController):
         self.cttid = Label(self.framedown, text=' ', fg=color("background"), bg=color("background"))
         self.cttid.place(relx=0.03, rely=0.6, relheight=0.01, relwidth=0.01)
 
-        self.cadctt = Label(self.framedown, text="Telefone/Celular:", font='Ivy 13', bg=color("background"))
-        self.cadctt.place(relx=0.030, rely=0.59, relwidth=0.18, relheight=0.08)
+        self.cadctt = Label(self.framedown, text="Telefone/Celular:", font='Ivy 14', bg=color("background"))
+        self.cadctt.place(relx=0.020, rely=0.595, relwidth=0.18, relheight=0.05)
 
-        self.cadctt = Label(self.framedown, text="Número :", font='Ivy 12', bg=color("background"))
+        self.cadctt = Label(self.framedown, text="Número :", font='Ivy 13', bg=color("background"))
         self.cadctt.place(relx=0.02, rely=0.645, relwidth=0.10, relheight=0.08)
         self.ctt_entry = Entry(self.framedown)
         self.ctt_entry.place(relx=0.12, rely=0.66, relwidth=0.15, relheight=0.05)
@@ -684,12 +682,10 @@ class ClientsView(ClientsController):
         self.cmbctt['values'] = ['Celular', 'Telefone']
         self.cmbctt.current(0)
 
-        self.rmvImg = PhotoImage(file=r'assets\rmv.png')
         self.bt_cttrmv = Button(self.framedown, image=self.rmvImg, relief='flat',
                                 command=self.rmvCtt)
         self.bt_cttrmv.place(relx=0.30, rely=0.72, relwidth=0.07, relheight=0.08)
 
-        self.addImg = PhotoImage(file=r'assets\add.png')
         self.bt_cttadd = Button(self.framedown, image=self.addImg, relief='flat',
                                 command=self.crtCtt)
         self.bt_cttadd.place(relx=0.39, rely=0.72, relwidth=0.07, relheight=0.08)
@@ -699,7 +695,7 @@ class ClientsView(ClientsController):
         self.cepid.place(relx=0.5, rely=0.6, relheight=0.01, relwidth=0.01)
 
         self.cadaddress = Label(self.framedown, text="Endereço:", font='Ivy 14', bg=color("background"))
-        self.cadaddress.place(relx=0.50, rely=0.595, relwidth=0.18, relheight=0.05)
+        self.cadaddress.place(relx=0.48, rely=0.595, relwidth=0.18, relheight=0.05)
 
         self.cadcep= Label(self.framedown, text="CEP :", font='Ivy 12', bg=color("background"))
         self.cadcep.place(relx=0.46, rely=0.645, relwidth=0.18, relheight=0.08)
@@ -786,7 +782,55 @@ class ClientsView(ClientsController):
             glv.get_variable("DATA_DIR"),
             "base.csv"
         )
-        self.read_csv(csv_path)
+        self.clean()
+        self.datecad = date.today().strftime("%d/%m/%Y")
+        with open(csv_path, "rt") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                entry = row
+                self.name_entry.insert(END, entry[0])
+                self.email_entry.insert(END, entry[1])
+                self.cod_entry.insert(END, entry[2])
+                self.birth.insert(END, entry[4])
+                self.occup_entry.insert(END, entry[3])
+                self.lead_entry.insert(END, entry[5])
+                self.obs_entry.insert("1.0", entry[6])
+
+                self.getEntry()
+                self.cp = self.cp.replace(".", "").replace("/", "").replace("-", "")
+                self.connect_db()
+                self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal, lead)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                                    (self.name, self.email, self.cp, self.occup, self.datecad, self.birthday,
+                                     self.obs, self.lead))
+                self.conn.commit()
+                self.disconnect_db()
+
+                self.connect_db()
+                self.cursor.execute(""" SELECT cod FROM tb_clientes 
+                    WHERE cp = ?""", (self.cp,))
+                cod = self.cursor.fetchall()[0][0]
+                self.disconnect_db()
+                self.lb_id.config(text=str(cod))
+
+                for index, element in enumerate(row):
+                    if index > 6:
+                        self.num = element.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
+                        if len(self.num) == 11:
+                            self.type = 'Celular'
+                        elif len(self.num) == 10:
+                            self.type = 'Telefone'
+                        try:
+                            self.connect_db()
+                            self.cursor.execute(f""" INSERT INTO tb_contatos (linha, tipo, cliente_cod) 
+                                        VALUES (?, ?, ?)""",
+                                                    (int(self.num), self.type, int(self.lb_id.cget("text"))))
+                            self.conn.commit()
+                            self.disconnect_db()
+                        except:
+                            pass
+
+                self.clean()
 
         for widget in self.framedown.winfo_children():
             widget_class = widget.__class__.__name__
@@ -802,7 +846,7 @@ class ClientsView(ClientsController):
             if widget_class == 'Treeview':
                 widget.destroy()
 
-        if self.name_entry.get() == '' or self.email_entry == '':
+        if self.name_entry.get() == '' and self.email_entry.get() == '':
            list = self.selectAllClients()
         else:
             if self.name_entry.get() != '':
@@ -811,3 +855,42 @@ class ClientsView(ClientsController):
                 list = self.searchClientByEmail()
 
         self.treeReload(list)
+
+    def genReport(self):
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            glv.get_variable("DATA_DIR"),
+            "clientes.csv"
+        )
+
+        data = []
+        for row in tree.get_children():
+            self.clean()
+            self.cleanctt()
+            dataline = []
+            values = self.selectClientbyId(int(tree.item(row, 'values')[0]))
+            self.setEntry(values[0][0], values[0][1], values[0][2], values[0][3], values[0][5], values[0][4],
+                          values[0][6], values[0][7], values[0][8])
+            self.getEntry()
+            dataline.append(self.name)
+            dataline.append(self.email)
+            dataline.append(self.cp)
+            dataline.append(self.occup)
+            dataline.append(self.birthday)
+            dataline.append(self.lead)
+            dataline.append(self.obs)
+
+            datactt = self.selectAllCtt()
+            for rowctt in datactt:
+
+                dataline.append(rowctt[0])
+
+            data.append(dataline)
+
+        file = open(csv_path, 'w+', newline='')
+
+        with file:
+            write = csv.writer(file)
+            write.writerows(data)
+
+        self.setup()
