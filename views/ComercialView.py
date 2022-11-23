@@ -239,7 +239,7 @@ class ComercialController:
         self.treecepReload()
         self.treecttReload()
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def treecepReload(self):
         global ceptree
@@ -266,7 +266,7 @@ class ComercialController:
         for item in listcep:
             ceptree.insert('', END, values=item)
 
-        ceptree.bind("<Double-1>", self.OnDoubleClick2)
+        ceptree.bind("<ButtonRelease-1>", self.OnDoubleClick2)
 
     def treecttReload(self):
         global ctttree
@@ -294,7 +294,7 @@ class ComercialController:
         for item in listctt:
             ctttree.insert('', END, values=item)
 
-        ctttree.bind("<Double-1>", self.OnDoubleClick3)
+        ctttree.bind("<ButtonRelease-1>", self.OnDoubleClick3)
 
     def OnDoubleClick(self, event):
         self.lb_name.config(state = NORMAL)
@@ -584,7 +584,7 @@ class ComercialView(ComercialController):
 
         self.gnrtSale = PhotoImage(file=r"assets\genven.png")
         self.bt_genSale = Button(self.frameup, image=self.gnrtSale, relief='flat',
-                                command=self)
+                                command=self.genSale)
         self.bt_genSale.place(relx=0.020, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.gnrtServ = PhotoImage(file=r"assets\genods.png")
@@ -617,7 +617,7 @@ class ComercialView(ComercialController):
             tree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def init_treecomercial2(self):
         global comercialtree
@@ -639,7 +639,7 @@ class ComercialView(ComercialController):
             comercialtree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def init_treebudget(self):
         global tree
@@ -665,7 +665,7 @@ class ComercialView(ComercialController):
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
         global ctttree
 
@@ -793,7 +793,7 @@ class ComercialView(ComercialController):
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def searchClientBudget(self):
         if self.name_entry.get() == '':
@@ -825,7 +825,7 @@ class ComercialView(ComercialController):
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def addProd(self):
         if float(self.kg.get()) < 0 or float(self.m.get() )< 0 or float(self.m2.get()) < 0 or float(self.uni.get()) < 0:
@@ -944,6 +944,7 @@ class ComercialView(ComercialController):
         if self.cod == "0":
             messagebox.showerror('Erro', 'Escolha um usuário para registrar.')
         else:
+
             self.cleanctt()
             self.connect_db()
             self.cursor.execute(""" INSERT INTO tb_comercial (cliente, cliente_cod, cep_cod, linha, subtotal, discount,
@@ -967,3 +968,43 @@ class ComercialView(ComercialController):
     def gencsv(self):
         pass
 
+    def genSale(self):
+        if self.lb_idbud.cget("text") == "":
+            self.saveorc()
+            self.genSale()
+        else:
+            self.getEntry()
+            self.id = self.lb_idbud.cget("text")
+            self.tipo = "venda"
+            self.connect_db()
+            self.cursor.execute(""" UPDATE tb_comercial SET
+                cliente = ?, 
+                cliente_cod = ?, 
+                cep_cod = ?, 
+                linha = ?, 
+                subtotal = ?, 
+                discount = ?,
+                data = ?, 
+                total = ?, 
+                obs = ?, 
+                hist = ?, 
+                status = ?, 
+                tipo = ?, 
+                link = ?
+                WHERE cod = ?""",
+                                (self.name,
+                                 self.cod,
+                                 self.cepcod,
+                                 self.num,
+                                 self.subtotal,
+                                 self.disc,
+                                 self.datecad,
+                                 self.tot,
+                                 self.obs,
+                                 self.hist,
+                                 self.status,
+                                 self.tipo,
+                                 self.link,
+                                 self.id))
+            self.conn.commit()
+            self.disconnect_db()

@@ -219,7 +219,7 @@ class ProductsController:
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     @staticmethod
     def treeSelect():
@@ -387,7 +387,7 @@ class ProductsView(ProductsController):
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def searchProduct(self):
 

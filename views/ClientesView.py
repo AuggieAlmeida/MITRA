@@ -347,7 +347,7 @@ class ClientsController:
         self.treecepReload()
         self.treecttReload()
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def treecepReload(self):
         global ceptree
@@ -374,7 +374,7 @@ class ClientsController:
         for item in listcep:
             ceptree.insert('', END, values=item)
 
-        ceptree.bind("<Double-1>", self.OnDoubleClick2)
+        ceptree.bind("<ButtonRelease-1>", self.OnDoubleClick2)
 
     def treecttReload(self):
         global ctttree
@@ -401,7 +401,7 @@ class ClientsController:
         for item in listctt:
             ctttree.insert('', END, values=item)
 
-        ctttree.bind("<Double-1>", self.OnDoubleClick3)
+        ctttree.bind("<ButtonRelease-1>", self.OnDoubleClick3)
 
     @staticmethod
     def treeSelect():
@@ -616,7 +616,7 @@ class ClientsView(ClientsController):
         for item in list:
             tree.insert('', END, values=item)
 
-        tree.bind("<Double-1>", self.OnDoubleClick)
+        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
         global ceptree
 
@@ -638,7 +638,7 @@ class ClientsView(ClientsController):
             ceptree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        ceptree.bind("<Double-1>", self.OnDoubleClick2)
+        ceptree.bind("<ButtonRelease-1>", self.OnDoubleClick2)
 
         global ctttree
 
@@ -660,7 +660,7 @@ class ClientsView(ClientsController):
             ctttree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        ctttree.bind("<Double-1>", self.OnDoubleClick3)
+        ctttree.bind("<ButtonRelease-1>", self.OnDoubleClick3)
 
     def init_lists(self):
         self.rmvImg = PhotoImage(file=r'assets\rmv.png')

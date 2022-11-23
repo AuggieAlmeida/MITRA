@@ -71,6 +71,8 @@ class Database:
                 cliente_cod INTEGER,
                 cep_cod INTEGER NOT NULL,
                 linha INTEGER,
+                pagamento TEXT,
+                parcelas INTEGER,
                 subtotal REAL,
                 discount REAL,
                 data TEXT,
