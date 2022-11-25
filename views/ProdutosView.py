@@ -1,16 +1,11 @@
 import sqlite3
 import os
 import csv
-import requests
 
 from tkinter import *
 from tkinter import ttk
-from tkcalendar import DateEntry
 from tkinter import messagebox
 
-from datetime import date
-
-from views import ClientesCadView
 
 from lib.colours import color
 import lib.global_variable as glv
@@ -96,7 +91,7 @@ class ProductsController:
                 self.connect_db()
                 self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, m2, unit, descricao)
                     VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                                    (self.prod, self.mat, self.kg, self.m, self.m2, self.qtd, self.obs))
+                                    (self.prod, self.mat,f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', self.obs))
                 self.conn.commit()
                 messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
                 self.disconnect_db()
@@ -161,7 +156,7 @@ class ProductsController:
                     m2 = ?,
                     unit = ?,
                     descricao = ?
-                    WHERE cod = ?""", (self.prod, self.mat, self.kg, self.m, self.m2, self.qtd, self.obs, self.cod))
+                    WHERE cod = ?""", (self.prod, self.mat, f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', self.obs, self.cod))
                 self.conn.commit()
                 self.disconnect_db()
                 self.clean()
@@ -185,9 +180,11 @@ class ProductsController:
     def searchProductbyName(self):
         self.connect_db()
         self.prod_entry.insert(END, '%')
+        self.mat_entry.insert(END, '%')
         nome = self.prod_entry.get()
+        mat = self.mat_entry.get
         self.cursor.execute(""" SELECT * FROM tb_produtos
-            WHERE servico LIKE '%s' ORDER BY servico ASC """ % nome)
+            WHERE servico LIKE ? ORDER BY servico ASC """ % nome, mat)
         row = self.cursor.fetchall()
         self.disconnect_db()
         self.clean()
@@ -363,6 +360,11 @@ class ProductsView(ProductsController):
                                 command=self.deleteProduct)
         self.bt_delete.place(relx=0.75, rely=0.88, relwidth=0.225, relheight=0.1)
 
+        self.rprtImg = PhotoImage(file=r'assets\report.png')
+        self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
+                                command=self.genReport)
+        self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
+
     def init_tree(self):
         global tree
         list = self.selectAllProducts()
@@ -376,7 +378,7 @@ class ProductsView(ProductsController):
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.87)
 
         hd = ["nw", "nw", "nw", "center","center", "center", "center"]
-        h = [10, 260, 190, 70, 70,70, 70]
+        h = [10, 260, 190, 70, 70, 70, 70]
         n = 0
 
         for col in self.list_header:
@@ -388,6 +390,26 @@ class ProductsView(ProductsController):
             tree.insert('', END, values=item)
 
         tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
+
+
+    def genReport(self):
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            glv.get_variable("DATA_DIR"),
+            "reports",
+            "produtos.csv"
+        )
+
+        with open(csv_path, "w", newline='') as myfile:
+            csvwriter = csv.writer(myfile, delimiter=',')
+            for row in tree.get_children():
+                values = (tree.item(row, 'values'))
+                self.connect_db()
+                self.cursor.execute(""" SELECT * FROM tb_produtos 
+                    WHERE cod = ?""", (values[0],))
+                row = self.cursor.fetchone()
+                self.disconnect_db()
+                csvwriter.writerow(row)
 
     def searchProduct(self):
 

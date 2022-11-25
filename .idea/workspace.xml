@@ -3,27 +3,22 @@
   <component name="ChangeListManager">
     <list default="true" id="79a4d406-2001-49dc-ad61-e9c514374f29" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" afterPath="$PROJECT_DIR$/SPDB.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/clientes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/clientes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/salvarorc.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/clientes.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/database/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_58161880840.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_62060126889.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_6465299.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_6784709.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_68932783277.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_71766519797.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_85115158789.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_8841308.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_93788924730.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_98948345615.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_99366226368.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/7_nome_23-11-2022_13706294641.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/7_nome_23-11-2022_29758357096.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/7_nome_23-11-2022_32672628348.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/7_nome_23-11-2022_44539943533.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_17776888152.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_31493580451.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_55812576587.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_72327447458.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/ClientesCadView.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ClientesView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ClientesView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ComercialView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ComercialView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/HomePage.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ProdutosView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ProdutosView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/views/Splash.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

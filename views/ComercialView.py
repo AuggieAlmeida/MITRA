@@ -6,7 +6,6 @@ import os
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-from random import randrange
 import csv
 
 from datetime import date
@@ -19,11 +18,11 @@ class ComercialController:
     def __init__(self):
         pass
 
-    def getEntry(self):
+    def getclientEntry(self):
         self.cod = self.lb_id.cget("text")
         self.name = self.lb_name.get()
 
-    def setEntry(self, cod, name):
+    def setclientEntry(self, cod, name):
         self.lb_id.config(text=cod)
         self.lb_name.insert(END, name)
 
@@ -31,12 +30,15 @@ class ComercialController:
         self.cepcod = self.lb_cepid.cget("text")
         self.cep = self.lb_cep.get()
 
-    def setCepEntry(self, cod ,end):
+    def setCepEntry(self, cod, end):
         self.lb_cepid.config(text=cod)
         self.lb_cep.insert(END, f'{end}')
 
     def getCttEntry(self):
-        self.num = self.lb_num.get()
+        if self.lb_num.get() == "":
+            self.num = ""
+        else:
+            self.num = self.lb_num.get()
 
     def setCttEntry(self, end):
         self.lb_num.insert(END, f'{end}')
@@ -109,11 +111,11 @@ class ComercialController:
         return row
 
     def selectAllCep(self):
-        self.getEntry()
+        self.getclientEntry()
         auxlist = []
         cod = [self.cod]
         self.connect_db()
-        self.cursor.execute(""" SELECT cod, cep, num, endereco FROM tb_enderecos 
+        self.cursor.execute(""" SELECT cod, cep, endereco, cid FROM tb_enderecos 
                     WHERE cliente_cod = ?""", (cod))
         self.info = self.cursor.fetchall()
         for i in self.info:
@@ -125,7 +127,7 @@ class ComercialController:
     def selectCepbyId(self, idcep):
         self.connect_db()
         idcep = int(idcep)
-        self.cursor.execute(""" SELECT cod, cep, num, endereco FROM tb_enderecos
+        self.cursor.execute(""" SELECT cod, cep, endereco, cid FROM tb_enderecos
                 WHERE cod = ?""", (idcep,))
         row = self.cursor.fetchall()
         self.disconnect_db()
@@ -133,7 +135,7 @@ class ComercialController:
         return row
 
     def selectAllCtt(self):
-        self.getEntry()
+        self.getclientEntry()
         auxlist = []
         cod = [self.cod]
         self.connect_db()
@@ -161,6 +163,18 @@ class ComercialController:
         auxlist = []
         self.connect_db()
         self.cursor.execute(""" SELECT cod, servico, material, kg, m, m2, unit FROM tb_produtos """)
+        self.info = self.cursor.fetchall()
+
+        for i in self.info:
+            auxlist.append(i)
+
+        self.disconnect_db()
+        return auxlist
+
+    def selectAllOrders(self):
+        auxlist = []
+        self.connect_db()
+        self.cursor.execute(""" SELECT cod, cliente, status, pagamento, parcelas, subtotal, discount, total, data, tipo FROM tb_comercial ORDER BY data desc""")
         self.info = self.cursor.fetchall()
 
         for i in self.info:
@@ -245,17 +259,17 @@ class ComercialController:
         global ceptree
         listcep = self.selectAllCep()
 
-        self.adress_header = ['id', 'CEP', 'N°', 'end']
+        self.adress_header = ['id', 'CEP', 'endereço']
 
         ceptree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.adress_header, show="headings")
-        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=ceptree.yview)
 
         ceptree.configure(yscrollcommand=self.vsb2.set)
-        ceptree.place(relx=0.02, rely=0.63, relheight=0.19, relwidth=0.450)
-        self.vsb2.place(relx=0.46, rely=0.63, relheight=0.19, relwidth=0.03)
+        ceptree.place(relx=0.02, rely=0.63, relheight=0.19, relwidth=0.62)
+        self.vsb2.place(relx=0.64, rely=0.63, relheight=0.19, relwidth=0.03)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 60, 30, 100]
+        hd = ["nw", "nw", "nw"]
+        h = [5, 50, 160]
         n = 0
 
         for col in self.adress_header:
@@ -276,14 +290,14 @@ class ComercialController:
         self.ctt_header = ['Numero', 'Tipo']
 
         ctttree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.ctt_header, show="headings")
-        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=ctttree.yview)
 
         ctttree.configure(yscrollcommand=self.vsb3.set)
-        ctttree.place(relx=0.02, rely=0.42, relheight=0.19, relwidth=0.45)
-        self.vsb3.place(relx=0.46, rely=0.42, relheight=0.19, relwidth=0.03)
+        ctttree.place(relx=0.02, rely=0.42, relheight=0.19, relwidth=0.62)
+        self.vsb3.place(relx=0.64, rely=0.42, relheight=0.19, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [100, 100]
+        h = [100, 50]
         n = 0
 
         for col in self.ctt_header:
@@ -297,45 +311,61 @@ class ComercialController:
         ctttree.bind("<ButtonRelease-1>", self.OnDoubleClick3)
 
     def OnDoubleClick(self, event):
-        self.lb_name.config(state = NORMAL)
-        self.clean()
-        self.lb_cep.config(state = NORMAL)
-        self.cleancep()
-        self.lb_num.config(state = NORMAL)
-        self.cleanctt()
-        cod = self.treeSelect()
-        values = self.selectClientbyId(int(cod[0]))
-        self.setEntry(values[0][0], values[0][1])
-        self.lb_name.config(state = DISABLED)
+        try:
+            self.lb_name.config(state=NORMAL)
+            self.clean()
+            self.lb_cep.config(state=NORMAL)
+            self.cleancep()
+            self.lb_num.config(state=NORMAL)
+            self.cleanctt()
+            cod = self.treeSelect()
+            values = self.selectClientbyId(int(cod[0]))
+            self.setclientEntry(values[0][0], values[0][1])
+            self.lb_name.config(state=DISABLED)
+            self.lb_cep.config(state=DISABLED)
+            self.lb_num.config(state=DISABLED)
 
-        self.treecepReload()
-        self.treecttReload()
+            self.treecepReload()
+            self.treecttReload()
+        except:
+            self.lb_name.config(state=DISABLED)
+            self.lb_cep.config(state=DISABLED)
+            self.lb_num.config(state=DISABLED)
 
     def OnDoubleClick2(self, event):
-        self.lb_cep.config(state = NORMAL)
-        self.cleancep()
-        cepcod = self.ceptreeSelect()
-        values = self.selectCepbyId(cepcod[0])
-        self.setCepEntry(values[0][0], values[0][1])
-        self.lb_cep.config(state = DISABLED)
+        try:
+            self.lb_cep.config(state = NORMAL)
+            self.cleancep()
+            cepcod = self.ceptreeSelect()
+            values = self.selectCepbyId(cepcod[0])
+            self.setCepEntry(values[0][0], values[0][2])
+            self.lb_cep.config(state=DISABLED)
+        except:
+            self.lb_cep.config(state=DISABLED)
 
     def OnDoubleClick3(self, event):
-        self.lb_num.config(state = NORMAL)
-        self.cleanctt()
-        ctt = self.ctttreeSelect()
-        self.setCttEntry(ctt[0])
-        self.lb_num.config(state = DISABLED)
+        try:
+            self.lb_num.config(state=NORMAL)
+            self.cleanctt()
+            ctt = self.ctttreeSelect()
+            self.setCttEntry(ctt[0])
+            self.lb_num.config(state=DISABLED)
+        except:
+            self.lb_num.config(state=DISABLED)
 
     def OnClick(self, event):
-        self.prod.config(state=NORMAL)
-        self.cleanprod()
-        prod = self.budgettreeSelect()
-        self.setProdEntry(prod[0], f'{prod[1]} - {prod[2]}', prod[3], prod[4], prod[5], prod[6])
-        self.prod.config(state = DISABLED)
-        self.kg.insert(END, "0")
-        self.m.insert(END, "0")
-        self.m2.insert(END, "0")
-        self.uni.insert(END, "0")
+        try:
+            self.prod.config(state=NORMAL)
+            self.cleanprod()
+            prod = self.budgettreeSelect()
+            self.setProdEntry(prod[0], f'{prod[1]} - {prod[2]}', prod[3], prod[4], prod[5], prod[6])
+            self.prod.config(state = DISABLED)
+            self.kg.insert(END, "0")
+            self.m.insert(END, "0")
+            self.m2.insert(END, "0")
+            self.uni.insert(END, "0")
+        except:
+            self.prod.config(state=DISABLED)
 
 
 class ComercialView(ComercialController):
@@ -366,15 +396,6 @@ class ComercialView(ComercialController):
         self.init_treebudget2()
         self.init_budgetButtons()
 
-    def init_sales(self):
-        self.clearAll()
-        self.init_layout()
-
-        self.rtrnImg = PhotoImage(file=r'assets\retornar.png')
-        self.bt_return = Button(self.framebar, image=self.rtrnImg, relief='flat',
-                                command=self.init_Comercial)
-        self.bt_return.place(relx=0.8, rely=0.08, width=70, height=60)
-
     def init_layout(self):
         self.bgImg = PhotoImage(file=r'assets\CARD.png')
         self.bg = Label(self.frameup, image=self.bgImg)
@@ -397,6 +418,31 @@ class ComercialView(ComercialController):
         self.name_entry = Entry(self.frameup, font='Ivy 14')
         self.name_entry.place(relx=0.17, y=45, relwidth=0.6, relheight=0.05)
 
+        self.clientid = Entry(self.frameup)
+
+        self.cmbStatus = ttk.Combobox(self.framedown)
+        self.cmbStatus = ttk.Combobox(self.framedown, font=('Ivy', 14))
+        self.cmbStatus.place(relx=0.02, rely=0.092, relwidth=0.3, relheight=0.05)
+        self.cmbStatus['values'] = ('Status','Novo lead', 'Em contato', 'Orçamento enviado', 'Aguardando Retorno', 'Perdido', 'Fechado', 'Pendente', 'Em produção', 'Entrega finalizada')
+        self.cmbStatus.current(0)
+        self.cmbStatus['state'] = 'readonly'
+        self.cmbStatus.bind('<<ComboboxSelected>>', self.filtercmb)
+
+        self.cmbPagamento = ttk.Combobox(self.framedown)
+        self.cmbPagamento = ttk.Combobox(self.framedown, font=('Ivy', 14))
+        self.cmbPagamento.place(relx=0.35, rely=0.092, relwidth=0.2, relheight=0.05)
+        self.cmbPagamento['values'] = ('Pagamento','À vista', 'Antecipado', 'Parcelado')
+        self.cmbPagamento.current(0)
+        self.cmbPagamento['state'] = 'readonly'
+        self.cmbPagamento.bind('<<ComboboxSelected>>', self.filtercmb)
+
+
+        self.obs_entry = Text(self.framedown, font=('arial', 10))
+        self.obs_entry.place(relx=0.02, rely=0.74, relwidth=0.6, relheight=0.23)
+
+        self.init_comercialButtons()
+
+    def init_comercialButtons(self):
         self.srchImg = PhotoImage(file=r"assets\procurar.png")
         self.bt_srch = Button(self.frameup, image=self.srchImg, relief='flat', background=color("background"),
                               command=self.searchClientComercial)
@@ -409,27 +455,37 @@ class ComercialView(ComercialController):
 
         self.budgetsIMG = PhotoImage(file=r"assets\ORC.png")
         self.btn_budgets = Button(self.frameup, image=self.budgetsIMG, relief='flat',
-                                  command=self.init_budget)
-        self.btn_budgets.place(relx=0.02, rely=0.6, width=130, height=100)
+                                  command=lambda: self.filter('orçamento'))
+        self.btn_budgets.place(relx=0.02, rely=0.625, width=130, height=100)
 
         self.salesIMG = PhotoImage(file=r"assets\VEN.png")
         self.btn_sales = Button(self.frameup, image=self.salesIMG, relief='flat',
-                                  command=self.init_sales)
-        self.btn_sales.place(relx=0.349, rely=0.6, width=130, height=100)
+                                  command=lambda: self.filter('venda'))
+        self.btn_sales.place(relx=0.349, rely=0.625, width=130, height=100)
 
         self.orderIMG = PhotoImage(file=r"assets\ORD.png")
         self.btn_order = Button(self.frameup, image=self.orderIMG, relief='flat',
-                                  command=self.init_sales)
-        self.btn_order.place(relx=0.678, rely=0.6, width=130, height=100)
+                                  command=lambda: self.filter('ordem'))
+        self.btn_order.place(relx=0.678, rely=0.625, width=130, height=100)
 
         self.rprtImg = PhotoImage(file=r'assets\report.png')
         self.bt_report = Button(self.framebar, image=self.rprtImg, relief='flat',
-                                command=self.init_Comercial)
+                                command=self.genReport)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
+        self.newIMG = PhotoImage(file=r'assets\NOVO.png')
+        self.bt_new = Button(self.framedown, image=self.newIMG, relief='flat',
+                                command=self.init_budget)
+        self.bt_new.place(relx=0.81, rely=0.8, width=140, height=100)
+
+        self.attImg = PhotoImage(file=r"assets\add.png")
+        self.bt_att = Button(self.framedown, image=self.attImg, relief='flat',
+                                command=self.attHist)
+        self.bt_att.place(relx=0.63, rely=0.875, width=70, height=60)
+
     def init_budgets(self):
-        self.title = Label(self.frameup, text="Orçamentos", font="Ivy 18 bold", bg="#CEDCE4")
-        self.title.place(relx=0.015, rely=0.005, relwidth=0.35, height= 28)
+        self.title = Label(self.frameup, text="Comercial", font="Ivy 18 bold", bg="#CEDCE4")
+        self.title.place(relx=0.015, rely=0.005, relwidth=0.30, height= 28)
 
         self.rtrnImg = PhotoImage(file=r'assets\retornar.png')
         self.bt_return = Button(self.framebar, image=self.rtrnImg, relief='flat',
@@ -452,28 +508,26 @@ class ComercialView(ComercialController):
         self.bt_clr.place(relx=0.90, y=40, relwidth=0.08, relheight=0.06)
 
         self.lb_idref = Label(self.frameup, text="ID: ", font='Ivy 16', background=color("background"))
-        self.lb_idref.place(relx=0.52, rely=0.42, relheight=0.06, relwidth=0.1)
+        self.lb_idref.place(relx=0.70, rely=0.42, relheight=0.06, relwidth=0.1)
         self.lb_id = Label(self.frameup, text="0", font='Ivy 16', background=color("background"),
                            anchor="w", justify=LEFT)
-        self.lb_id.place(relx=0.62, rely=0.42, relheight=0.06, relwidth=0.15)
+        self.lb_id.place(relx=0.78, rely=0.42, relheight=0.06, relwidth=0.15)
 
-        self.lb_clientref = Label(self.frameup, text="Nome: ", background=color("background"))
-        self.lb_clientref.place(relx=0.52, rely=0.50, relheight=0.06, relwidth=0.1)
         self.lb_name = Entry(self.frameup, background=color("background"))
-        self.lb_name.place(relx=0.62, rely=0.50, relheight=0.06, relwidth=0.36)
+        self.lb_name.place(relx=0.73, rely=0.50, relheight=0.06, relwidth=0.25)
 
-        self.lb_cepref = Label(self.frameup, text="End: ", background=color("background"))
-        self.lb_cepref.place(relx=0.535, rely=0.70, relheight=0.06, relwidth=0.1)
         self.lb_cep = Entry(self.frameup, background=color("background"))
-        self.lb_cep.place(relx=0.62, rely=0.70, relheight=0.06, relwidth=0.36)
+        self.lb_cep.place(relx=0.73, rely=0.70, relheight=0.06, relwidth=0.25)
 
         self.lb_cepid = Label(self.frameup, text="0", font='Ivy 16', background=color("background"),
                            anchor="w", justify=LEFT)
 
-        self.lb_numref = Label(self.frameup, text="Num: ", background=color("background"))
-        self.lb_numref.place(relx=0.525, rely=0.60, relheight=0.06, relwidth=0.1)
+
         self.lb_num = Entry(self.frameup, background=color("background"))
-        self.lb_num.place(relx=0.62, rely=0.60, relheight=0.06, relwidth=0.36)
+        self.lb_num.place(relx=0.73, rely=0.60, relheight=0.06, relwidth=0.25)
+        self.lb_name.config(state=DISABLED)
+        self.lb_cep.config(state=DISABLED)
+        self.lb_num.config(state=DISABLED)
 
     def init_budgets2(self):
         self.lblf = Label(self.framedown, font=('arial', 13, 'bold'), text="Frete:", bg=color("background"),
@@ -490,12 +544,6 @@ class ComercialView(ComercialController):
                                bg=color("background"), anchor='w', justify=LEFT)
         self.lblvisita.place(relx=0.0835, rely=0.71, relwidth=0.4, relheight=0.08)
 
-        self.lblobs = Label(self.framedown, font=('arial', 13), text="Descrição do serviço:", bg=color("background"),
-                          anchor='e', justify=RIGHT)
-        self.lblobs.place(relx=0.19, rely=0.80, relwidth=0.27, relheight=0.08)
-        self.obs_entry = Text(self.framedown, font=('arial', 10))
-        self.obs_entry.place(relx=0.258, rely=0.86, relwidth=0.33, relheight=0.10)
-
         self.lblSubTotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Subtotal", bg=color("background"),
                                  anchor='e', justify=RIGHT)
         self.lblSubTotal.place(relx=0.63, rely=0.68, relwidth=0.13, relheight=0.08)
@@ -503,7 +551,8 @@ class ComercialView(ComercialController):
         self.subTotal.place(relx=0.780, rely=0.69, relwidth=0.19, relheight=0.06)
         self.subTotal.config(state=DISABLED)
 
-        self.lbldiscount = Label(self.framedown, font=('arial', 14, 'bold'), text="Desconto                               %", bg=color("background"),
+        self.lbldiscount = Label(self.framedown, font=('arial', 14, 'bold'),
+                                 text="Desconto                              %", bg=color("background"),
                                  anchor='e', justify=RIGHT)
         self.lbldiscount.place(relx=0.63, rely=0.78, relwidth=0.34, relheight=0.08)
         self.discount = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"), justify=RIGHT)
@@ -513,12 +562,38 @@ class ComercialView(ComercialController):
         self.discount.bind('<Return>', self.discountValue)
         self.discount.bind('<FocusOut>', self.discountValue)
 
-        self.lbltotal = Label(self.framedown, font=('arial', 14, 'bold'), text="total", bg=color("background"),
+        self.lbltotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Total", bg=color("background"),
                                  anchor='e', justify=RIGHT)
-        self.lbltotal.place(relx=0.60, rely=0.88, relwidth=0.16, relheight=0.08)
+        self.lbltotal.place(relx=0.605, rely=0.88, relwidth=0.16, relheight=0.08)
         self.total = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"))
         self.total.place(relx=0.780, rely=0.89, relwidth=0.19, relheight=0.06)
         self.total.config(state=DISABLED)
+
+        self.cmbPag = ttk.Combobox(self.framedown, font=('Ivy', 14, 'bold'))
+        self.cmbPag.place(relx=0.4, rely=0.77, relwidth=0.24, relheight=0.06)
+        self.cmbPag['values'] = ('À vista', 'Antecipado', 'Parcelado')
+        self.cmbPag.current(0)
+        self.cmbPag['state'] = 'readonly'
+        self.cmbPag.bind('<<ComboboxSelected>>', self.callback)
+
+        self.cmbPar = ttk.Combobox(self.framedown, font=('Ivy', 14))
+        self.cmbPar.place(relx=0.648, rely=0.89, relwidth=0.05, relheight=0.06)
+        self.cmbPar['values'] = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12')
+        self.cmbPar.current(0)
+        self.cmbPar['state'] = 'disabled'
+        self.cmbPar.bind('<<ComboboxSelected>>', self.divTotal)
+
+        self.cmbStts = ttk.Combobox(self.framedown, font=('Ivy', 12, 'bold'))
+        self.cmbStts.place(relx=0.4, rely=0.69, relwidth=0.24, relheight=0.06)
+        self.cmbStts['values'] = ('Novo lead', 'Em contato', 'Orçamento enviado', 'Aguardando Retorno', 'Perdido', 'Fechado', 'Pendente', 'Em produção', 'Entrega finalizada')
+        self.cmbStts.current(0)
+        self.cmbStts['state'] = 'readonly'
+
+        self.lblobs = Label(self.framedown, font=('arial', 13), text="Anotações:", bg=color("background"),
+                          anchor='e', justify=RIGHT)
+        self.lblobs.place(relx=0.065, rely=0.80, relwidth=0.25, relheight=0.08)
+        self.obs_entry = Text(self.framedown, font=('arial', 10))
+        self.obs_entry.place(relx=0.208, rely=0.86, relwidth=0.43, relheight=0.10)
 
         self.lblkg = Label(self.framedown, font=('arial', 13, 'bold'), text="kg", bg=color("background"),
                                  anchor='e', justify=RIGHT)
@@ -573,65 +648,75 @@ class ComercialView(ComercialController):
 
         self.budid = Label(self.framedown, text="Cod: ", font="Ivy 20", background="#CEDCE4")
         self.budid.place(relx=0.02, rely=0.013)
-        self.lb_idbud = Label(self.framedown, text="", font="Ivy 20", background="#CEDCE4", justify=LEFT)
+        self.lb_idbud = Label(self.framedown, text="0", font="Ivy 20", background="#CEDCE4", justify=LEFT)
         self.lb_idbud.place(relx=0.1, rely=0.013)
 
     def init_budgetButtons(self):
-        self.svbudImg = PhotoImage(file=r"assets\salvarorc.png")
-        self.bt_savebudget = Button(self.framedown, image=self.svbudImg, relief='flat',
+        self.svbudImg = PhotoImage(file=r"assets\genorc.png")
+        self.bt_savebudget = Button(self.frameup, image=self.svbudImg, relief='flat',
                                 command=self.saveorc)
-        self.bt_savebudget.place(relx=0.022, rely=0.8, height=100, width=130)
+        self.bt_savebudget.place(relx=0.75, rely=0.88, relwidth=0.23, relheight=0.1)
 
         self.gnrtSale = PhotoImage(file=r"assets\genven.png")
         self.bt_genSale = Button(self.frameup, image=self.gnrtSale, relief='flat',
                                 command=self.genSale)
-        self.bt_genSale.place(relx=0.020, rely=0.88, relwidth=0.225, relheight=0.1)
+        self.bt_genSale.place(relx=0.38, rely=0.88, relwidth=0.23, relheight=0.1)
 
         self.gnrtServ = PhotoImage(file=r"assets\genods.png")
         self.bt_genService = Button(self.frameup, image=self.gnrtServ, relief='flat',
-                                command=self)
-        self.bt_genService.place(relx=0.38, rely=0.88, relwidth=0.225, relheight=0.1)
+                                command=self.genOrder)
+        self.bt_genService.place(relx=0.020, rely=0.88, relwidth=0.23, relheight=0.1)
 
-        self.prntCsv = PhotoImage(file=r"assets\printcsv.png")
-        self.printCsv = Button(self.frameup, image=self.prntCsv, relief='flat',
+        self.prntCsv = PhotoImage(file=r"assets\gencsv.png")
+        self.printCsv = Button(self.framedown, image=self.prntCsv, relief='flat',
                                 command=self.gencsv)
-        self.printCsv.place(relx=0.75, rely=0.88, relwidth=0.225, relheight=0.1)
+        self.printCsv.place(relx=0.022, rely=0.8, height=100, width=130)
 
     def init_treecomercial(self):
-        global tree
+        global treecomercial
+        list = self.selectAllClients()
 
         self.list_header = ['ID', 'Nome', 'Email', 'Documento']
-        tree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
-        self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+        treecomercial = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
+        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=treecomercial.yview)
 
-        tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.41)
-        self.vsb.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.41)
+        treecomercial.configure(yscrollcommand=self.vsb2.set)
+        treecomercial.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.41)
+        self.vsb2.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.41)
 
         hd = ["nw", "nw", "nw", "nw"]
         h = [10, 120, 120, 90]
         n = 0
 
         for col in self.list_header:
-            tree.heading(col, text=col.title(), anchor=CENTER)
-            tree.column(col, width=h[n], anchor=hd[n])
+            treecomercial.heading(col, text=col.title(), anchor=CENTER)
+            treecomercial.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
+        for item in list:
+            treecomercial.insert('', END, values=item)
+
+        treecomercial.bind('<ButtonRelease-1>', self.defclient)
 
     def init_treecomercial2(self):
         global comercialtree
 
-        self.list_header = ['ID', 'Cliente', 'subtotal', 'desconto', 'total', 'data']
+        list = self.selectAllOrders()
+
+        self.list_header = ['ID', 'Cliente', 'Status', 'Pagamento', 'Parcelas', 'desconto', 'total', 'data']
         comercialtree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=comercialtree.yview)
 
-        comercialtree.configure(yscrollcommand=self.vsb.set)
-        comercialtree.place(relx=0.02, rely=0.15, relwidth=0.94, relheight=0.60)
-        self.vsb.place(relx=0.96, rely=0.15, relwidth=0.02, relheight=0.60)
+        comercialtree.tag_configure('orc', background="yellow")
+        comercialtree.tag_configure('sal', background="light green")
+        comercialtree.tag_configure('ord', background="light blue")
 
-        hd = ["nw", "nw", "nw", "nw", "nw", "nw"]
-        h = [10, 230, 60, 60, 60, 60]
+        comercialtree.configure(yscrollcommand=self.vsb.set)
+        comercialtree.place(relx=0.02, rely=0.16, relwidth=0.94, relheight=0.55)
+        self.vsb.place(relx=0.96, rely=0.16, relwidth=0.02, relheight=0.55)
+
+        hd = ["nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw"]
+        h = [10, 150, 80, 70, 70, 60, 60, 60, 60]
         n = 0
 
         for col in self.list_header:
@@ -639,18 +724,32 @@ class ComercialView(ComercialController):
             comercialtree.column(col, width=h[n], anchor=hd[n])
             n += 1
 
-        tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
+        for row in list:
+            subtotal = float(row[5][3:])
+            disc = row[6]/100 * subtotal
+            if row[9] == 'orçamento':
+                self.tag = 'orc'
+            elif row[9] == 'venda':
+                self.tag = 'sal'
+            elif row[9] == 'ordem':
+                self.tag = 'ord'
+            comercialtree.insert('', END, text='1', tags=self.tag ,values=(row[0], row[1], row[2], row[3], f'{row[4]} x {row[7]}',
+                                                            f'R$ {disc:.2f}', row[5], row[8]))
+
+
+        comercialtree.bind('<ButtonRelease-1>', self.showHist)
+        comercialtree.bind('<Double-Button-1>', self.OnClickComercial)
 
     def init_treebudget(self):
         global tree
         list = self.selectAllClients()
 
-        self.list_header = ['ID', 'Nome', 'Email', 'Documento']
+        self.list_header = ['ID', 'Nomea', 'Email', 'Documento']
         tree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.02, rely=0.15, relwidth=0.93, relheight=0.25)
+        tree.place(relx=0.02, rely=0.15, relwidth=0.92, relheight=0.25)
         self.vsb.place(relx=0.94, rely=0.15, relwidth=0.04, relheight=0.25)
 
         hd = ["nw", "nw", "nw", "nw"]
@@ -672,14 +771,14 @@ class ComercialView(ComercialController):
         self.ctt_header = ['Numero', 'Tipo']
 
         ctttree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.ctt_header, show="headings")
-        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+        self.vsb3 = ttk.Scrollbar(self.frameup, orient="vertical", command=ctttree.yview)
 
         ctttree.configure(yscrollcommand=self.vsb3.set)
-        ctttree.place(relx=0.02, rely=0.42, relheight=0.19, relwidth=0.45)
-        self.vsb3.place(relx=0.46, rely=0.42, relheight=0.19, relwidth=0.03)
+        ctttree.place(relx=0.02, rely=0.42, relheight=0.19, relwidth=0.62)
+        self.vsb3.place(relx=0.64, rely=0.42, relheight=0.19, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [100, 100]
+        h = [100, 50]
         n = 0
 
         for col in self.ctt_header:
@@ -689,17 +788,17 @@ class ComercialView(ComercialController):
 
         global ceptree
 
-        self.adress_header = ['id', 'CEP', 'N°', 'end']
+        self.adress_header = ['id', 'CEP', 'endereço']
 
         ceptree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.adress_header, show="headings")
-        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
+        self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=ceptree.yview)
 
         ceptree.configure(yscrollcommand=self.vsb2.set)
-        ceptree.place(relx=0.02, rely=0.63, relheight=0.19, relwidth=0.450)
-        self.vsb2.place(relx=0.46, rely=0.63, relheight=0.19, relwidth=0.03)
+        ceptree.place(relx=0.02, rely=0.63, relheight=0.19, relwidth=0.62)
+        self.vsb2.place(relx=0.64, rely=0.63, relheight=0.19, relwidth=0.03)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 60, 30, 100]
+        hd = ["nw", "nw", "nw"]
+        h = [5, 50, 160]
         n = 0
 
         for col in self.adress_header:
@@ -778,7 +877,7 @@ class ComercialView(ComercialController):
         self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.02, rely=0.16, relwidth=0.93, relheight=0.41)
+        tree.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.41)
         self.vsb.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.41)
 
         hd = ["nw", "nw", "nw", "nw"]
@@ -810,7 +909,7 @@ class ComercialView(ComercialController):
         self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.02, rely=0.15, relwidth=0.93, relheight=0.25)
+        tree.place(relx=0.02, rely=0.15, relwidth=0.92, relheight=0.25)
         self.vsb.place(relx=0.94, rely=0.15, relwidth=0.04, relheight=0.25)
 
         hd = ["nw", "nw", "nw", "nw"]
@@ -828,7 +927,7 @@ class ComercialView(ComercialController):
         tree.bind("<ButtonRelease-1>", self.OnDoubleClick)
 
     def addProd(self):
-        if float(self.kg.get()) < 0 or float(self.m.get() )< 0 or float(self.m2.get()) < 0 or float(self.uni.get()) < 0:
+        if float(self.kg.get().replace(",", ".")) < 0 or float(self.m.get().replace(",", "."))< 0 or float(self.m2.get().replace(",", ".")) < 0 or float(self.uni.get().replace(",", ".")) < 0:
             messagebox.showerror('Erro', 'Permitido apenas valores positivos')
         else:
             if self.kg.get() != '' or self.m.get() != '' or self.m2.get() != '' or self.uni.get() != '':
@@ -836,27 +935,31 @@ class ComercialView(ComercialController):
                 if self.kg.get() == "":
                     self.kg.insert(END, "0")
                 else:
-                    self.totalkg = float(self.vkg) * float(self.kg.get())
+                    self.kg = self.kg.get().replace(",", ".")
+                    self.totalkg = float(self.vkg) * float((self.kg))
 
                 if self.m.get() == "":
                     self.m.insert(END, "0")
                 else:
-                    self.totalm = float(self.vm) * float(self.m.get())
+                    self.m = self.m.get().replace(",", ".")
+                    self.totalm = float(self.vm) * float(self.m)
 
                 if self.m2.get() == "":
                     self.m2.insert(END, "0")
                 else:
-                    self.totalm2 = float(self.vm2) * float(self.m2.get())
+                    self.m2 = self.m2.get().replace(",", ".")
+                    self.totalm2 = float(self.vm2) * float(self.m2)
 
                 if self.uni.get() == "":
                     self.uni.insert(END, "0")
                 else:
-                    self.totaluni = float(self.vuni) * float(self.uni.get())
+                    self.uni = self.uni.get().replace(",", ".")
+                    self.totaluni = float(self.vuni) * float(self.uni)
 
                 self.totalitem = self.totalkg + self.totalm + self.totalm2 + self.totaluni
 
-                budgetTree.insert("", END, values=(self.prodcod.cget("text"), self.prod.get(), self.totalkg, self.totalm, self.totalm2,
-                                                   self.totaluni, self.totalitem))
+                budgetTree.insert("", END, values=(self.prodcod.cget("text"), self.prod.get(), f"{self.totalkg:.2f}", f'{self.totalm:.2f}', f'{self.totalm2:.2f}',
+                                                   f'{self.totaluni:.2f}', f'{self.totalitem:.2f}'))
                 self.sumTotal()
 
             else:
@@ -868,20 +971,88 @@ class ComercialView(ComercialController):
         self.sumTotal()
 
     def discountValue(self, event):
-        if float(self.discount.get()) > 100 or float(self.discount.get()) < 0:
+        try:
+            float(self.discount.get())
+        except:
             messagebox.showerror('Erro', 'Favor inserir desconto válido')
             self.discount.delete(0, END)
             self.discount.insert(END, "0")
+            self.discountValue(None)
         else:
-            self.sumTotal()
+            if float(self.discount.get()) > 100 or float(self.discount.get()) < 0:
+                messagebox.showerror('Erro', 'Favor inserir desconto válido')
+                self.discount.delete(0, END)
+                self.discount.insert(END, "0")
+            else:
+                self.sumTotal()
+
+    def defclient(self, event):
+        treev_data = treecomercial.focus()
+        treev_dicionario = treecomercial.item(treev_data)
+        treev_list = treev_dicionario['values']
+        cod = treev_list[0]
+
+        for widget in self.framedown.winfo_children():
+            widget_class = widget.__class__.__name__
+            if widget_class == 'Treeview' or widget_class == 'Scrollbar':
+                widget.destroy()
+
+        self.connect_db()
+        self.cursor.execute(
+            """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+            WHERE cliente_cod = ? ORDER BY data desc """, (cod,))
+        row = self.cursor.fetchall()
+        self.disconnect_db()
+
+        global comercialtree
+
+        list = row
+
+        self.list_header = ['ID', 'Cliente', 'Status', 'Pagamento', 'Parcelas', 'desconto', 'total', 'data']
+        comercialtree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header,
+                                     show="headings")
+        self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=comercialtree.yview)
+
+        comercialtree.tag_configure('orc', background="yellow")
+        comercialtree.tag_configure('sal', background="light green")
+        comercialtree.tag_configure('ord', background="light blue")
+
+        comercialtree.configure(yscrollcommand=self.vsb.set)
+        comercialtree.place(relx=0.02, rely=0.16, relwidth=0.94, relheight=0.55)
+        self.vsb.place(relx=0.96, rely=0.16, relwidth=0.02, relheight=0.55)
+
+        hd = ["nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw"]
+        h = [10, 150, 80, 70, 70, 60, 60, 60, 60]
+        n = 0
+
+        comercialtree.bind('<ButtonRelease-1>', self.showHist)
+        comercialtree.bind('<Double-Button-1>', self.OnClickComercial)
+
+        for col in self.list_header:
+            comercialtree.heading(col, text=col.title(), anchor=CENTER)
+            comercialtree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for row in list:
+            subtotal = float(row[5][3:])
+            disc = row[6] / 100 * subtotal
+            if row[9] == 'orçamento':
+                self.tag = 'orc'
+            elif row[9] == 'venda':
+                self.tag = 'sal'
+            elif row[9] == 'ordem':
+                self.tag = 'ord'
+            comercialtree.insert('', END, text='1', tags=self.tag,
+                                 values=(row[0], row[1], row[2], row[3], f'{row[4]} x {row[5]}',
+                                         f'R$ {disc:.2f}', row[7], row[8]))
 
     def sumTotal(self):
         self.subtotalvalue = 0
         for child in budgetTree.get_children():
             self.value = float(budgetTree.item(child, "values")[6])
             self.subtotalvalue += self.value
-
-        self.totalvalue = self.subtotalvalue * (1 - (float(self.discount.get()) / 100))
+        self.div = int(self.cmbPar.get())
+        self.totalvalue = (self.subtotalvalue * (1 - (float(self.discount.get()) / 100)))/self.div
 
         self.subTotal.config(state=NORMAL)
         self.subTotal.delete(0, END)
@@ -893,24 +1064,145 @@ class ComercialView(ComercialController):
         self.total.insert(END, str(f'R$ {self.totalvalue:.2f}'))
         self.total.config(state=DISABLED)
 
+    def OnClickComercial(self, event):
+        comercialtreev_data = comercialtree.focus()
+        comercialtreev_dicionario = comercialtree.item(comercialtreev_data)
+        comercialtreev_list = comercialtreev_dicionario['values'][0]
+        self.connect_db()
+        self.cursor.execute(""" SELECT * FROM tb_comercial WHERE cod = ? """, (comercialtreev_list,))
+        row = self.cursor.fetchone()
+        self.disconnect_db()
+        self.init_budget()
+
+        self.id = row[0]#
+        self.nome = row[1]#
+        self.clienteid = row[2]#
+        self.endereco = row[3]#
+        self.contato = row[4]#
+        self.pagamento = row[5]#
+        self.parcela = row[6]#
+        self.totaldiv = row[7]#
+        self.desconto = row[8]#
+        self.sub = row[10]#
+        self.anotac = row[11]#
+        self.status = row[13]
+        self.orcamento = row[15]
+
+        self.connect_db()
+        self.cursor.execute(""" SELECT endereco FROM tb_enderecos WHERE cod = ? """, (self.endereco,))
+        rowcep = self.cursor.fetchone()
+        self.disconnect_db()
+
+        self.lb_idbud.config(text=self.id)
+        try:
+            self.lb_name.config(state=NORMAL)
+            self.lb_cep.config(state=NORMAL)
+            self.lb_num.config(state=NORMAL)
+
+            self.lb_id.config(text=self.clienteid)
+            self.lb_name.insert(END, self.nome)
+            self.lb_cepid.config(text=self.endereco)
+            self.lb_cep.insert(END, rowcep[0])
+            self.lb_num.insert(END, self.contato)
+
+            self.lb_name.config(state=DISABLED)
+            self.lb_cep.config(state=DISABLED)
+            self.lb_num.config(state=DISABLED)
+        except:
+            self.lb_name.config(state=DISABLED)
+            self.lb_cep.config(state=DISABLED)
+            self.lb_num.config(state=DISABLED)
+
+        self.subTotal.config(state=NORMAL)
+        self.subTotal.delete(0, END)
+        self.subTotal.insert(END, f'{self.sub}')
+        self.subTotal.config(state=DISABLED)
+
+        self.total.config(state=NORMAL)
+        self.total.delete(0, END)
+        self.total.insert(END, f'{self.totaldiv}')
+        self.total.config(state=DISABLED)
+
+        self.discount.insert(END, self.desconto)
+
+        self.obs_entry.insert("1.0", self.anotac)
+
+        if self.pagamento == 'À vista':
+            self.cmbPag.current(0)
+        elif self.pagamento == 'Antecipado':
+            self.cmbPag.current(1)
+        elif self.pagamento == 'Parcelado':
+            self.cmbPag.current(2)
+            self.cmbPar['state'] = NORMAL
+            self.cmbPar.set(self.parcela)
+
+        self.cmbStts.set(self.status)
+
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            "orçamentos",
+            "Reg",
+            f"{self.orcamento}.csv"
+        )
+
+        with open(csv_path) as myfile:
+            csvread = csv.reader(myfile, delimiter=',')
+
+            for row in csvread:
+                budgetTree.insert("", 'end', values=row)
+
+        self.treecttReload()
+        self.treecepReload()
+
+    def getAllData(self):
+        self.datecad = date.today().strftime("%d-%m-%Y")
+
+        self.zip = random.randint(10000000000, 99999999999)
+        self.link = f"{self.cod}_{self.name}_{self.datecad}_{self.zip}"
+
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            "orçamentos",
+            "Reg",
+            f"{self.link}.csv"
+        )
+
+        data = []
+        for row_id in budgetTree.get_children():
+            row = budgetTree.item(row_id)['values']
+            data.append(row)
+        file = open(csv_path, 'w+', newline='')
+
+        with file:
+            write = csv.writer(file)
+            write.writerows(data)
+        self.id = self.lb_idbud.cget("text")
+        self.subtotal = self.subTotal.get()
+        self.disc = self.discount.get()
+        self.tot = self.total.get()
+        self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
+        self.status = self.cmbStts.get()
+        self.pag = self.cmbPag.get()
+        self.par = self.cmbPar.get()
+        self.paid = '0'
+
     def saveorc(self):
         self.sumTotal()
         if self.lb_name.get() == "":
             messagebox.showerror("Erro", "Escolha ao menos um cliente para vincular à esta venda.")
             return
         else:
-            self.getEntry()
+            self.getclientEntry()
 
         if self.lb_num.get() != "":
             self.getCttEntry()
+        else:
+            self.num =""
 
         self.getCepEntry()
         if self.cepcod == "0":
             messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
             return
-        else:
-            pass
-
         self.datecad = date.today().strftime("%d-%m-%Y")
 
         self.zip = random.randint(10000000000, 99999999999)
@@ -937,74 +1229,484 @@ class ComercialView(ComercialController):
         self.disc = self.discount.get()
         self.tot = self.total.get()
         self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
-        self.status = ""
+        self.status = self.cmbStts.get()
         self.hist = ""
         self.tipo = "orçamento"
+        self.paid = '0'
+        self.pag = self.cmbPag.get()
+        self.par = self.cmbPar.get()
 
         if self.cod == "0":
             messagebox.showerror('Erro', 'Escolha um usuário para registrar.')
         else:
-
-            self.cleanctt()
-            self.connect_db()
-            self.cursor.execute(""" INSERT INTO tb_comercial (cliente, cliente_cod, cep_cod, linha, subtotal, discount,
-             data, total, obs, hist, status, tipo, link) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                        (self.name, self.cod, self.cepcod, self.num, self.subtotal, self.disc, self.datecad, self.tot,
-                         self.obs, self.hist, self.status, self.tipo, self.link))
-            self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
-            self.disconnect_db()
-
-        self.connect_db()
-        id = self.link
-        self.cursor.execute(""" SELECT cod FROM tb_comercial 
-                WHERE link = ?""", (id,))
-        row = self.cursor.fetchone()
-        self.disconnect_db()
-
-        self.lb_idbud.config(text=row[0])
+            if self.lb_idbud.cget("text") == "0":
+                self.connect_db()
+                self.cursor.execute(""" INSERT INTO tb_comercial (cliente, cliente_cod, cep_cod, linha, pagamento,
+                 parcelas, subtotal, discount, data, total, obs, hist, status, tipo, link, pagas) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) """,
+                            (self.name, self.cod, self.cepcod, self.num, self.pag, self.par, self.tot, self.disc,
+                             self.datecad, self.subtotal, self.obs, self.hist, self.status, self.tipo, self.link, self.paid))
+                self.conn.commit()
+                messagebox.showinfo('ORÇAMENTO', 'Dados inseridos com sucesso')
+                id = self.link
+                self.cursor.execute(""" SELECT cod FROM tb_comercial 
+                        WHERE link = ?""", (id,))
+                row = self.cursor.fetchone()
+                self.disconnect_db()
+                self.lb_idbud.config(text=row[0])
+            else:
+                self.id = self.lb_idbud.cget("text")
+                self.connect_db()
+                self.cursor.execute(""" UPDATE tb_comercial SET
+                    cliente = ?, 
+                    cliente_cod = ?, 
+                    cep_cod = ?, 
+                    linha = ?,
+                    pagamento = ?,
+                    parcelas = ?, 
+                    subtotal = ?, 
+                    discount = ?,
+                    data = ?, 
+                    total = ?, 
+                    obs = ?, 
+                    status = ?, 
+                    tipo = ?, 
+                    link = ?,
+                    pagas = ?
+                    WHERE cod = ?""",
+                        (self.name,
+                         self.cod,
+                         self.cepcod,
+                         self.num,
+                         self.pag,
+                         self.par,
+                         self.subtotal,
+                         self.disc,
+                         self.datecad,
+                         self.tot,
+                         self.obs,
+                         self.status,
+                         self.tipo,
+                         self.link,
+                         self.paid,
+                         self.id))
+                self.conn.commit()
+                messagebox.showinfo('Sucesso', 'Dados atualizados com sucesso.')
+                self.disconnect_db()
 
     def gencsv(self):
-        pass
+        if self.lb_name.get() == "":
+            messagebox.showerror("Erro", "Escolha ao menos um cliente para vincular à esta venda.")
+            return
+        elif self.lb_cep.get() == "":
+            messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
+            return
+
+        self.sumTotal()
+        self.datecad = date.today().strftime("%d-%m-%Y")
+        self.subtotal = self.subTotal.get()
+        self.disc = self.discount.get()
+        self.tot = self.total.get()
+        self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
+        self.status = self.cmbStts.get()
+        self.hist = ""
+        self.tipo = "orçamento"
+        self.pag = self.cmbPag.get()
+        self.par = self.cmbPar.get()
+
+        self.client = self.selectClientbyId(self.lb_id.cget("text"))
+        self.client = self.client[0]
+
+        self.cepcod = int(self.lb_cepid.cget("text"))
+
+        self.cep = self.selectCepbyId(self.cepcod)[0]
+
+        self.connect_db()
+        self.cursor.execute(""" SELECT * FROM info""")
+        self.info = self.cursor.fetchone()
+        self.disconnect_db()
+
+        self.num = self.lb_num.get()
+
+        self.today = [self.datecad]
+        self.clientString = [self.client[1], self.client[3], self.client[2], self.num]
+        self.endString = [self.cep[1], self.cep[2], self.cep[3]]
+        self.sp = [self.info[1], self.info[2], self.info[3], self.info[4]]
+        self.bank = [self.info[5], self.info[6], self.info[7], self.info[8]]
+        self.ctt = [self.info[9], self.info[10]]
+        self.loc = [self.info[13], self.info[11], self.info[12]]
+        self.todo = [self.obs_entry.get("1.0", "end-1c").strip()]
+        self.orderString = [f'{self.par} x {self.tot}', self.pag, self.subtotal]
+
+        data = []
+        for row_id in budgetTree.get_children():
+            row = budgetTree.item(row_id)['values']
+            data.append(row)
+
+        self.zip = random.randint(10000000000, 99999999999)
+        self.archive = f'{self.client[1]}_{self.tipo}{self.datecad}_{self.zip}'
+
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            "orçamentos",
+            f"{self.archive}.csv"
+        )
+
+        file = open(csv_path, 'w+', newline='')
+
+        with file:
+            write = csv.writer(file)
+            write.writerow(self.today)
+            write.writerow(self.orderString)
+            write.writerow(self.clientString)
+            write.writerow(self.endString)
+            write.writerow(self.sp)
+            write.writerow(self.bank)
+            write.writerow(self.ctt)
+            write.writerow(self.loc)
+            write.writerow(self.todo)
+            write.writerows(data)
 
     def genSale(self):
-        if self.lb_idbud.cget("text") == "":
+        if self.lb_idbud.cget("text") == "0":
             self.saveorc()
-            self.genSale()
+            if self.lb_name.get() == "":
+                return
+            elif self.lb_cep.get() == "":
+                return
+            else:
+                self.genSale()
         else:
-            self.getEntry()
-            self.id = self.lb_idbud.cget("text")
+            if self.lb_name.get() == "":
+                messagebox.showerror("Erro", "Escolha ao menos um cliente para vincular à esta venda.")
+                return
+            else:
+                self.getclientEntry()
+
+            if self.lb_num.get() != "":
+                self.getCttEntry()
+            else:
+                self.num = ""
+
+            self.getCepEntry()
+            if self.cepcod == "0":
+                messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
+                return
+            self.getAllData()
             self.tipo = "venda"
+            messagebox.showinfo('VENDA', 'Venda gerada com sucesso.')
             self.connect_db()
             self.cursor.execute(""" UPDATE tb_comercial SET
-                cliente = ?, 
-                cliente_cod = ?, 
-                cep_cod = ?, 
-                linha = ?, 
-                subtotal = ?, 
-                discount = ?,
-                data = ?, 
-                total = ?, 
-                obs = ?, 
-                hist = ?, 
-                status = ?, 
-                tipo = ?, 
-                link = ?
-                WHERE cod = ?""",
-                                (self.name,
-                                 self.cod,
-                                 self.cepcod,
-                                 self.num,
-                                 self.subtotal,
-                                 self.disc,
-                                 self.datecad,
-                                 self.tot,
-                                 self.obs,
-                                 self.hist,
-                                 self.status,
-                                 self.tipo,
-                                 self.link,
-                                 self.id))
+                    cliente = ?, 
+                    cliente_cod = ?, 
+                    cep_cod = ?, 
+                    linha = ?,
+                    pagamento = ?,
+                    parcelas = ?, 
+                    subtotal = ?, 
+                    discount = ?,
+                    data = ?, 
+                    total = ?, 
+                    obs = ?, 
+                    status = ?, 
+                    tipo = ?, 
+                    link = ?,
+                    pagas = ?
+                    WHERE cod = ?""",
+                        (self.name,
+                         self.cod,
+                         self.cepcod,
+                         self.num,
+                         self.pag,
+                         self.par,
+                         self.subtotal,
+                         self.disc,
+                         self.datecad,
+                         self.tot,
+                         self.obs,
+                         self.status,
+                         self.tipo,
+                         self.link,
+                         self.paid,
+                         self.id))
             self.conn.commit()
             self.disconnect_db()
+
+    def genOrder(self):
+        if self.lb_idbud.cget("text") == "0":
+            self.saveorc()
+
+            if self.lb_name.get() == "":
+                return
+            elif self.lb_cep.get() == "":
+                return
+            else:
+                self.genOrder()
+        else:
+            if self.lb_name.get() == "":
+                messagebox.showerror("Erro", "Escolha ao menos um cliente para vincular à esta venda.")
+                return
+            else:
+                self.getclientEntry()
+
+            if self.lb_num.get() != "":
+                self.getCttEntry()
+            else:
+                self.num = ""
+
+            self.getCepEntry()
+            if self.cepcod == "0":
+                messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
+                return
+            self.getAllData()
+            self.id = self.lb_idbud.cget("text")
+            self.tipo = "ordem"
+            messagebox.showinfo('ORDEM DE SERVIÇO', 'Ordem de serviço gerada com sucesso.')
+            self.connect_db()
+            self.cursor.execute(""" UPDATE tb_comercial SET
+                    cliente = ?, 
+                    cliente_cod = ?, 
+                    cep_cod = ?, 
+                    linha = ?,
+                    pagamento = ?,
+                    parcelas = ?, 
+                    subtotal = ?, 
+                    discount = ?,
+                    data = ?, 
+                    total = ?, 
+                    obs = ?, 
+                    status = ?, 
+                    tipo = ?, 
+                    link = ?,
+                    pagas = ?
+                    WHERE cod = ?""",
+                        (self.name,
+                         self.cod,
+                         self.cepcod,
+                         self.num,
+                         self.pag,
+                         self.par,
+                         self.subtotal,
+                         self.disc,
+                         self.datecad,
+                         self.tot,
+                         self.obs,
+                         self.status,
+                         self.tipo,
+                         self.link,
+                         self.paid,
+                         self.id))
+            self.conn.commit()
+            self.disconnect_db()
+
+    def callback(self, event):
+        if self.cmbPag.get() == 'À vista':
+            self.cmbPar.current(0)
+            self.cmbPar['state'] = 'disabled'
+        elif self.cmbPag.get() == 'Parcelado':
+            self.cmbPar['state'] = 'readonly'
+        elif self.cmbPag.get() == 'Antecipado':
+            self.cmbPar.current(0)
+            self.cmbPar['state'] = 'disabled'
+
+    def divTotal(self, event):
+        self.sumTotal()
+
+    def filter(self, type):
+        for widget in self.framedown.winfo_children():
+            widget_class = widget.__class__.__name__
+            if widget_class == 'Treeview' or widget_class == 'Scrollbar':
+                widget.destroy()
+
+        self.connect_db()
+        self.name_entry.insert(END, '%')
+        nome = self.name_entry.get()
+        self.cursor.execute(
+            """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+            WHERE tipo LIKE ? AND cliente LIKE ? ORDER BY data desc """, (type, nome))
+        row = self.cursor.fetchall()
+        self.disconnect_db()
+        self.name_entry.delete(0, END)
+        global comercialtree
+
+        list = row
+
+        self.list_header = ['ID', 'Cliente', 'Status', 'Pagamento', 'Parcelas', 'desconto', 'total', 'data']
+        comercialtree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header,
+                                     show="headings")
+        self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=comercialtree.yview)
+
+        comercialtree.tag_configure('orc', background="yellow")
+        comercialtree.tag_configure('sal', background="light green")
+        comercialtree.tag_configure('ord', background="light blue")
+
+        comercialtree.configure(yscrollcommand=self.vsb.set)
+        comercialtree.place(relx=0.02, rely=0.16, relwidth=0.94, relheight=0.55)
+        self.vsb.place(relx=0.96, rely=0.16, relwidth=0.02, relheight=0.55)
+
+        hd = ["nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw"]
+        h = [10, 150, 80, 70, 70, 60, 60, 60, 60]
+        n = 0
+
+        comercialtree.bind('<ButtonRelease-1>', self.showHist)
+        comercialtree.bind('<Double-Button-1>', self.OnClickComercial)
+
+        for col in self.list_header:
+            comercialtree.heading(col, text=col.title(), anchor=CENTER)
+            comercialtree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for row in list:
+            subtotal = float(row[5][3:])
+            disc = row[6] / 100 * subtotal
+            if row[9] == 'orçamento':
+                self.tag = 'orc'
+            elif row[9] == 'venda':
+                self.tag = 'sal'
+            elif row[9] == 'ordem':
+                self.tag = 'ord'
+            comercialtree.insert('', END, text='1', tags=self.tag,
+                                 values=(row[0], row[1], row[2], row[3], f'{row[4]} x {row[5]}',
+                                         f'R$ {disc:.2f}', row[7], row[8]))
+
+    def genReport(self):
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            glv.get_variable("DATA_DIR"),
+            "reports",
+            "comercial.csv"
+        )
+
+        with open(csv_path, "w", newline='') as myfile:
+            csvwriter = csv.writer(myfile, delimiter=',')
+            for entry in comercialtree.get_children():
+                values = (comercialtree.item(entry, 'values'))
+                self.connect_db()
+                self.cursor.execute(""" SELECT cliente, cep_cod, linha, pagamento, parcelas, pagas ,subtotal, discount, total, data, obs, hist, status, tipo FROM tb_comercial
+                    WHERE cod = ?""", (values[0],))
+                row = self.cursor.fetchone()
+                self.cursor.execute(""" SELECT cep, endereco, cid FROM tb_enderecos 
+                    WHERE cod = ?""", (row[1],))
+                rowcep = self.cursor.fetchone()
+                self.disconnect_db()
+
+                if row[13] == 'ordem':
+                    self.stage = 'Ordem de serviço'
+                elif row[13] == 'venda':
+                    self.stage = "Venda"
+                else:
+                    self.stage = "Orçamento"
+
+                self.entrada = row[5] * float(row[8][3:])
+
+                data = [row[0], row[2], rowcep[0], rowcep[1], rowcep[2], row[3], row[4], row[5], row[8], f'R$ {self.entrada}',row[6], row[7],  row[9], row[12], self.stage]
+                csvwriter.writerow(data)
+
+    def filtercmb(self, event):
+        for widget in self.framedown.winfo_children():
+            widget_class = widget.__class__.__name__
+            if widget_class == 'Treeview' or widget_class == 'Scrollbar':
+                widget.destroy()
+        self.connect_db()
+
+        if self.cmbStatus.get() != "Status" and self.cmbPagamento.get() != 'Pagamento':
+            self.cursor.execute(
+                """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+                WHERE status LIKE ? AND pagamento LIKE ? ORDER BY data desc """,
+                (self.cmbStatus.get(), self.cmbPagamento.get(),))
+            row = self.cursor.fetchall()
+
+        elif self.cmbStatus.get() != "Status" and self.cmbPagamento.get() == "Pagamento":
+            self.cursor.execute(
+                """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+                WHERE status LIKE ? ORDER BY data desc """,
+                (self.cmbStatus.get(),))
+            row = self.cursor.fetchall()
+
+        elif self.cmbStatus.get() == "Status" and self.cmbPagamento.get() != "Pagamento":
+            self.cursor.execute(
+                """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+                WHERE pagamento LIKE ? ORDER BY data desc """,
+                (self.cmbPagamento.get(),))
+            row = self.cursor.fetchall()
+        else:
+            self.cursor.execute(
+                """ SELECT cod, cliente, status, pagamento, parcelas, total, discount, subtotal, data, tipo FROM tb_comercial
+                ORDER BY data desc """)
+            row = self.cursor.fetchall()
+        self.disconnect_db()
+
+        global comercialtree
+
+        list = row
+
+        self.list_header = ['ID', 'Cliente', 'Status', 'Pagamento', 'Parcelas', 'desconto', 'total', 'data']
+        comercialtree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header,
+                                     show="headings")
+        self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=comercialtree.yview)
+
+        comercialtree.tag_configure('orc', background="yellow")
+        comercialtree.tag_configure('sal', background="light green")
+        comercialtree.tag_configure('ord', background="light blue")
+
+        comercialtree.configure(yscrollcommand=self.vsb.set)
+        comercialtree.place(relx=0.02, rely=0.16, relwidth=0.94, relheight=0.55)
+        self.vsb.place(relx=0.96, rely=0.16, relwidth=0.02, relheight=0.55)
+
+        hd = ["nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw", "nw"]
+        h = [10, 150, 80, 70, 70, 60, 60, 60, 60]
+        n = 0
+
+        for col in self.list_header:
+            comercialtree.heading(col, text=col.title(), anchor=CENTER)
+            comercialtree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for row in list:
+            subtotal = float(row[5][3:])
+            disc = row[6] / 100 * subtotal
+            if row[9] == 'orçamento':
+                self.tag = 'orc'
+            elif row[9] == 'venda':
+                self.tag = 'sal'
+            elif row[9] == 'ordem':
+                self.tag = 'ord'
+            comercialtree.insert('', END, text='1', tags=self.tag,
+                                 values=(row[0], row[1], row[2], row[3], f'{row[4]} x {row[5]}',
+                                         f'R$ {disc:.2f}', row[7], row[8]))
+
+        comercialtree.bind('<ButtonRelease-1>', self.showHist)
+        comercialtree.bind('<Double-Button-1>', self.OnClickComercial)
+
+    def showHist(self, event):
+        treev_data = comercialtree.focus()
+        treev_dicionario = comercialtree.item(treev_data)
+        treev_list = treev_dicionario['values']
+        cod = treev_list[0]
+
+        self.connect_db()
+        self.cursor.execute(
+            """ SELECT hist FROM tb_comercial
+            WHERE cod = ? ORDER BY data desc """, (cod,))
+        row = self.cursor.fetchall()
+        self.disconnect_db()
+
+        self.obs_entry.delete("1.0", END)
+        self.obs_entry.insert("1.0", row[0][0])
+
+    def attHist(self):
+        treev_data = comercialtree.focus()
+        treev_dicionario = comercialtree.item(treev_data)
+        treev_list = treev_dicionario['values']
+        cod = treev_list[0]
+
+        self.hist = self.obs_entry.get("1.0", END).strip()
+        self.connect_db()
+        self.cursor.execute(""" UPDATE tb_comercial SET
+                            hist = ?
+                            WHERE cod = ?""",
+                            (self.hist,
+                             cod))
+        self.conn.commit()
+        messagebox.showinfo('Sucesso', 'Dados atualizados com sucesso.')
+        self.disconnect_db()

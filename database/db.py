@@ -32,7 +32,8 @@ class Database:
                 nascimento VARCHAR(11),
                 datacad VARCHAR(11),
                 fiscal char(255),
-                lead VARCHAR(50)
+                lead VARCHAR(50),
+                fiel INTEGER
             );
         """)
         self.cursor.execute("""
@@ -40,8 +41,7 @@ class Database:
                 cod INTEGER PRIMARY KEY AUTOINCREMENT,
                 cliente_cod INTEGER,
                 cep VARCHAR(10) NOT NULL,
-                num INTEGER NOT NULL,
-                compl VARCHAR(20),
+                cid TEXT,
                 endereco VARCHAR(120)
             );
         """)
@@ -81,8 +81,36 @@ class Database:
                 hist TEXT,
                 status TEXT,
                 tipo TEXT,
-                link TEXT
+                link TEXT,
+                pagas INTEGER
             );
         """)
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS info (
+                cod INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                empresa TEXT,
+                titulo TEXT,
+                cnpj TEXT,
+                ie TEXT,
+                pix TEXT,
+                banco TEXT,
+                conta TEXT,
+                agencia TEXT,
+                email TEXT,
+                ctt TEXT,
+                end TEXT,
+                loc TEXT,
+                cep TEXT
+            );
+        """)
+        self.cursor.execute("SELECT count(*) FROM INFO")
+        COUNT = self.cursor.fetchone()[0]
+        if COUNT > 0:
+            pass
+        else:
+            create = ""
+            self.cursor.execute(" INSERT INTO info (empresa, titulo, cnpj, ie, pix, banco, conta, agencia, email, ctt, end, loc, cep) "
+                                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                (create, create, create, create, create, create, create, create, create, create, create, create, create,))
         self.conn.commit()
         self.disconnect_db()

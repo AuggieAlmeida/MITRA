@@ -49,11 +49,9 @@ class ClientsController:
         self.n = self.n_entry.get()
         self.compl = self.compl_entry.get()
 
-    def setCepEntry(self, cod, cep, n, compl):
+    def setCepEntry(self, cod, cep):
         self.cepid.config(text=cod)
         self.cep_entry.insert(END, cep)
-        self.n_entry.insert(END, n)
-        self.compl_entry.insert(END, compl)
 
     def getCttEntry(self):
         self.ctt = self.ctt_entry.get()
@@ -106,7 +104,6 @@ class ClientsController:
             messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
         else:
             self.getEntry()
-            self.clean()
             self.connect_db()
             self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal, lead)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -115,6 +112,22 @@ class ClientsController:
             self.conn.commit()
             messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
             self.disconnect_db()
+
+            cod = [self.cp]
+            self.connect_db()
+            self.cursor.execute(""" SELECT cod FROM tb_clientes
+                        WHERE cp = ?""", (cod))
+            self.info = self.cursor.fetchall()
+            clientcod = int(self.info[0][0])
+
+            self.lb_id.config(text=clientcod)
+
+            self.disconnect_db()
+            if self.ctt_entry.get() != '':
+                self.insertCtt()
+
+            if self.cep_entry.get() != '' and self.n_entry.get():
+                self.insertCep()
 
     def insertCep(self):
         self.getEntry()
@@ -131,14 +144,20 @@ class ClientsController:
             self.loc = self.dic['localidade']
             self.uf = self.dic['uf']
 
-            self.end = f'{self.log} - {self.bai}. {self.loc} - {self.uf}'
+            if self.compl == "":
+                self.compl = ""
+            else:
+                self.compl = f' - {self.compl}'
+
+            self.city = f'{self.loc} - {self.uf}'
+            self.end = f'{self.log}  {self.n}{self.compl}. {self.bai}.'
             self.cleancep()
             self.connect_db()
-            self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, cep, num, compl, endereco)
-                    VALUES (?, ?, ?, ?, ?)""",
-                                (self.cod, self.cep, self.n, self.compl, self.end))
+            self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, cep, cid, endereco)
+                    VALUES (?, ?, ?, ?)""",
+                                (self.cod, self.cep, self.city, self.end))
             self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            messagebox.showinfo('Sucesso', 'Endereço inserido com sucesso')
             self.disconnect_db()
             self.treecepReload()
 
@@ -154,7 +173,7 @@ class ClientsController:
                     VALUES (?, ?, ?)""",
                                 (self.ctt, self.typectt, self.cod))
             self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            messagebox.showinfo('Sucesso', 'Contato inserido com sucesso')
             self.disconnect_db()
             self.treecttReload()
 
@@ -196,7 +215,7 @@ class ClientsController:
         auxlist = []
         cod = [self.cod]
         self.connect_db()
-        self.cursor.execute(""" SELECT cod, cep, num, compl, endereco FROM tb_enderecos 
+        self.cursor.execute(""" SELECT cod, cep, endereco, cid FROM tb_enderecos 
                     WHERE cliente_cod = ?""", (cod))
         self.info = self.cursor.fetchall()
         for i in self.info:
@@ -208,7 +227,7 @@ class ClientsController:
     def selectCepbyId(self, idcep):
         self.connect_db()
         idcep = int(idcep)
-        self.cursor.execute(""" SELECT cod, cep, num, compl, endereco FROM tb_enderecos
+        self.cursor.execute(""" SELECT cod, cep, endereco, cid FROM tb_enderecos
                 WHERE cod = ?""", (idcep,))
         row = self.cursor.fetchall()
         self.disconnect_db()
@@ -353,7 +372,7 @@ class ClientsController:
         global ceptree
         listcep = self.selectAllCep()
 
-        self.adress_header = ['id', 'CEP', 'Num', 'Compl.', 'endereço']
+        self.adress_header = ['id', 'CEP', 'endereço', 'cidade']
 
         ceptree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.adress_header, show="headings")
         self.vsb2 = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
@@ -362,8 +381,8 @@ class ClientsController:
         ceptree.place(relx=0.53, rely=0.81, relheight=0.17, relwidth=0.40)
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 75, 40, 40, 100]
+        hd = ["nw", "nw", "nw", "nw"]
+        h = [15, 40, 130, 95]
         n = 0
 
         for col in self.adress_header:
@@ -460,7 +479,7 @@ class ClientsController:
         self.cleancep()
         cepcod = self.ceptreeSelect()
         values = self.selectCepbyId(cepcod[0])
-        self.setCepEntry(values[0][0], values[0][1], values[0][2], values[0][3])
+        self.setCepEntry(values[0][0], values[0][1])
         self.verifyCep()
 
     def OnDoubleClick3(self, event):
@@ -620,7 +639,7 @@ class ClientsView(ClientsController):
 
         global ceptree
 
-        self.adress_header = ['id', 'CEP', 'Num', 'Compl.', 'endereço']
+        self.adress_header = ['id', 'CEP', 'endereço', 'cidade']
 
         ceptree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.adress_header, show="headings")
         self.vsb2 = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
@@ -629,8 +648,8 @@ class ClientsView(ClientsController):
         ceptree.place(relx=0.53, rely=0.81, relheight=0.17, relwidth=0.40)
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [10, 75, 40, 40, 100]
+        hd = ["nw", "nw", "nw", "nw"]
+        h = [15, 40, 130, 95]
         n = 0
 
         for col in self.adress_header:
@@ -689,7 +708,6 @@ class ClientsView(ClientsController):
         self.bt_cttadd = Button(self.framedown, image=self.addImg, relief='flat',
                                 command=self.crtCtt)
         self.bt_cttadd.place(relx=0.39, rely=0.72, relwidth=0.07, relheight=0.08)
-
 
         self.cepid = Label(self.framedown, text=' ', fg=color("background"), bg=color("background"))
         self.cepid.place(relx=0.5, rely=0.6, relheight=0.01, relwidth=0.01)
@@ -860,6 +878,7 @@ class ClientsView(ClientsController):
         csv_path = os.path.join(
             glv.get_variable("APP_PATH"),
             glv.get_variable("DATA_DIR"),
+            "reports",
             "clientes.csv"
         )
 
@@ -886,7 +905,6 @@ class ClientsView(ClientsController):
                 dataline.append(rowctt[0])
 
             data.append(dataline)
-        print(csv_path)
 
         file = open(csv_path, 'w+', newline='')
 
