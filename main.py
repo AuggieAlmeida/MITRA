@@ -4,7 +4,7 @@ from tkinter import *
 from tkinter import ttk, messagebox
 
 from components import menubar
-from views import ClientesView, ComercialView, ProdutosView
+from views import ClientesView, ComercialView, ProdutosView, FluxoView
 
 from lib.colours import color
 from lib.functions import set_window_center
@@ -100,6 +100,10 @@ class App:
         self.reset_page()
         ProdutosView.ProductsView(self.framedownleft, self.frameright, self.frameupleft)
 
+    def init_fluxo(self):
+        self.reset_page()
+        FluxoView.FluxoView(self.framedownleft, self.frameright, self.frameupleft)
+
     def connect_db(self):
         db_path = os.path.join(
             glv.get_variable("APP_PATH"),
@@ -141,7 +145,7 @@ class App:
         self.btnproducts.place(x=980, rely=0, width=70, height=60)
 
         self.fluxImg = PhotoImage(file=r'assets\5.png')
-        self.btnflux = Button(self.framebar,image=self.fluxImg, relief='flat', command=self.reset_page)
+        self.btnflux = Button(self.framebar,image=self.fluxImg, relief='flat', command=self.init_fluxo)
         self.btnflux.place(x=1060, rely=0, width=70, height=60)
 
         self.configImg = PhotoImage(file=r'assets\6.png')
@@ -247,7 +251,6 @@ class App:
         self.configure.add(self.tabEnt, text="  Dados da Empresa  ")
         self.configure.add(self.tabAcc, text="  Dados Bancários  ")
         self.configure.add(self.tabLoc, text="  Dados Adicionais  ")
-        self.configure.add(self.tabPag, text="  Pagamentos  ")
         self.configure.place(x=0, y=0, relheight=1, relwidth=1)
 
         self.addImg = PhotoImage(file=r'assets\ATUALIZAR.png')

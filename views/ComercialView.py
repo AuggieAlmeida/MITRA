@@ -356,8 +356,8 @@ class ComercialController:
     def OnClick(self, event):
         try:
             self.prod.config(state=NORMAL)
-            self.cleanprod()
             prod = self.budgettreeSelect()
+            self.cleanprod()
             self.setProdEntry(prod[0], f'{prod[1]} - {prod[2]}', prod[3], prod[4], prod[5], prod[6])
             self.prod.config(state = DISABLED)
             self.kg.insert(END, "0")
@@ -736,7 +736,6 @@ class ComercialView(ComercialController):
             comercialtree.insert('', END, text='1', tags=self.tag ,values=(row[0], row[1], row[2], row[3], f'{row[4]} x {row[7]}',
                                                             f'R$ {disc:.2f}', row[5], row[8]))
 
-
         comercialtree.bind('<ButtonRelease-1>', self.showHist)
         comercialtree.bind('<Double-Button-1>', self.OnClickComercial)
 
@@ -928,42 +927,44 @@ class ComercialView(ComercialController):
 
     def addProd(self):
         if float(self.kg.get().replace(",", ".")) < 0 or float(self.m.get().replace(",", "."))< 0 or float(self.m2.get().replace(",", ".")) < 0 or float(self.uni.get().replace(",", ".")) < 0:
-            messagebox.showerror('Erro', 'Permitido apenas valores positivos')
+            messagebox.showerror('Erro', 'Permitido apenas valores positivos.')
         else:
             if self.kg.get() != '' or self.m.get() != '' or self.m2.get() != '' or self.uni.get() != '':
                 self.getProdEntry()
                 if self.kg.get() == "":
                     self.kg.insert(END, "0")
                 else:
-                    self.kg = self.kg.get().replace(",", ".")
-                    self.totalkg = float(self.vkg) * float((self.kg))
+                    self.kgt = self.kg.get().replace(",", ".")
+                    self.totalkg = float(self.vkg) * float(self.kgt)
 
                 if self.m.get() == "":
                     self.m.insert(END, "0")
                 else:
-                    self.m = self.m.get().replace(",", ".")
-                    self.totalm = float(self.vm) * float(self.m)
+                    self.mt = self.m.get().replace(",", ".")
+                    self.totalm = float(self.vm) * float(self.mt)
 
                 if self.m2.get() == "":
                     self.m2.insert(END, "0")
                 else:
-                    self.m2 = self.m2.get().replace(",", ".")
-                    self.totalm2 = float(self.vm2) * float(self.m2)
+                    self.m2t = self.m2.get().replace(",", ".")
+                    self.totalm2 = float(self.vm2) * float(self.m2t)
 
                 if self.uni.get() == "":
                     self.uni.insert(END, "0")
                 else:
-                    self.uni = self.uni.get().replace(",", ".")
-                    self.totaluni = float(self.vuni) * float(self.uni)
+                    self.unit = self.uni.get().replace(",", ".")
+                    self.totaluni = float(self.vuni) * float(self.unit)
 
                 self.totalitem = self.totalkg + self.totalm + self.totalm2 + self.totaluni
 
                 budgetTree.insert("", END, values=(self.prodcod.cget("text"), self.prod.get(), f"{self.totalkg:.2f}", f'{self.totalm:.2f}', f'{self.totalm2:.2f}',
                                                    f'{self.totaluni:.2f}', f'{self.totalitem:.2f}'))
+                self.cleanprod()
+                self.prod.config(state=DISABLED)
                 self.sumTotal()
 
             else:
-                messagebox.showerror('Erro', 'Favor insira valores numéricos')
+                messagebox.showerror('Erro', 'Favor insira valores numéricos.')
 
     def rmvProd(self):
         selected_item = budgetTree.selection()[0]
@@ -974,13 +975,13 @@ class ComercialView(ComercialController):
         try:
             float(self.discount.get())
         except:
-            messagebox.showerror('Erro', 'Favor inserir desconto válido')
+            messagebox.showerror('Erro', 'Favor inserir desconto válido.')
             self.discount.delete(0, END)
             self.discount.insert(END, "0")
             self.discountValue(None)
         else:
             if float(self.discount.get()) > 100 or float(self.discount.get()) < 0:
-                messagebox.showerror('Erro', 'Favor inserir desconto válido')
+                messagebox.showerror('Erro', 'Favor inserir desconto válido.')
                 self.discount.delete(0, END)
                 self.discount.insert(END, "0")
             else:
@@ -1081,12 +1082,12 @@ class ComercialView(ComercialController):
         self.contato = row[4]#
         self.pagamento = row[5]#
         self.parcela = row[6]#
-        self.totaldiv = row[7]#
+        self.totaldiv = row[10]#
         self.desconto = row[8]#
-        self.sub = row[10]#
+        self.sub = row[7]#
         self.anotac = row[11]#
-        self.status = row[13]
-        self.orcamento = row[15]
+        self.status = row[13]#
+        self.orcamento = row[15]#
 
         self.connect_db()
         self.cursor.execute(""" SELECT endereco FROM tb_enderecos WHERE cod = ? """, (self.endereco,))
@@ -1247,7 +1248,7 @@ class ComercialView(ComercialController):
                             (self.name, self.cod, self.cepcod, self.num, self.pag, self.par, self.tot, self.disc,
                              self.datecad, self.subtotal, self.obs, self.hist, self.status, self.tipo, self.link, self.paid))
                 self.conn.commit()
-                messagebox.showinfo('ORÇAMENTO', 'Dados inseridos com sucesso')
+                messagebox.showinfo('ORÇAMENTO', 'Dados inseridos com sucesso.')
                 id = self.link
                 self.cursor.execute(""" SELECT cod FROM tb_comercial 
                         WHERE link = ?""", (id,))

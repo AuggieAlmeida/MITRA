@@ -78,13 +78,13 @@ class ProductsController:
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
             if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
-                messagebox.showerror('Erro', 'Preço inválido')
+                messagebox.showerror('Erro', 'Preço inválido.')
                 return
         except:
-            messagebox.showerror('Erro', 'Preço inválido')
+            messagebox.showerror('Erro', 'Preço inválido.')
         else:
             if self.prod == '':
-                messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
+                messagebox.showerror('Erro', 'Preencha os dados obrigatórios.')
             else:
 
                 self.clean()
@@ -93,7 +93,7 @@ class ProductsController:
                     VALUES (?, ?, ?, ?, ?, ?, ?)""",
                                     (self.prod, self.mat,f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', self.obs))
                 self.conn.commit()
-                messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+                messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso.')
                 self.disconnect_db()
                 row = self.selectAllProducts()
                 self.treeReload(row)
@@ -140,13 +140,13 @@ class ProductsController:
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
             if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
-                messagebox.showerror('Erro', 'Preço inválido')
+                messagebox.showerror('Erro', 'Preço inválido.')
                 return
         except:
-            messagebox.showerror('Erro', 'Preço inválido')
+            messagebox.showerror('Erro', 'Preço inválido.')
         else:
             if self.prod == '':
-                messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
+                messagebox.showerror('Erro', 'Preencha os dados obrigatórios.')
             else:
                 self.cursor.execute(""" UPDATE tb_produtos SET
                     servico = ?,
@@ -166,7 +166,7 @@ class ProductsController:
     def deleteProduct(self):
         self.getEntry()
         self.msg_box = messagebox.askquestion('Deletar Produto/Serviço',
-                                              'Tem certeza que deseja deletar o produto/serviço  ' + self.prod)
+                                              'Tem certeza que deseja deletar o produto/serviço  ' + self.prod + ".")
         if self.msg_box == 'yes':
             self.connect_db()
             self.cursor.execute(""" DELETE FROM tb_produtos 
@@ -184,7 +184,7 @@ class ProductsController:
         nome = self.prod_entry.get()
         mat = self.mat_entry.get
         self.cursor.execute(""" SELECT * FROM tb_produtos
-            WHERE servico LIKE ? ORDER BY servico ASC """ % nome, mat)
+            WHERE servico LIKE ? ORDER BY servico ASC """, (nome,))
         row = self.cursor.fetchall()
         self.disconnect_db()
         self.clean()
@@ -192,9 +192,7 @@ class ProductsController:
         return row
 
     def treeReload(self, list):
-
         global tree
-        list = self.selectAllProducts()
 
         self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
@@ -268,11 +266,6 @@ class ProductsView(ProductsController):
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
     def init_layoutcad(self):
-        self.prod = Label(self.frameup, text="Serviço:", font="Ivy 12", bg=color("background"))
-        self.prod.place(relx=0.05, rely=0.08, relwidth=0.15, relheight=0.1)
-        self.prod_entry = Entry(self.frameup, font="Ivy 11")
-        self.prod_entry.place(relx=0.215, rely=0.1, relwidth=0.68, relheight=0.05)
-
         self.srchImg = PhotoImage(file=r"assets\procurar.png")
         self.bt_srch = Button(self.frameup, image=self.srchImg, relief='flat', background=color("background"),
                               command=self.searchProduct)
@@ -281,7 +274,12 @@ class ProductsView(ProductsController):
         self.clrImg = PhotoImage(file=r"assets\lixo.png")
         self.bt_clr = Button(self.frameup, image=self.clrImg, relief='flat', background=color("background"),
                              command=self.clean)
+
         self.bt_clr.place(relx=0.90, rely=0.18, relwidth=0.08, relheight=0.06)
+        self.prod = Label(self.frameup, text="Serviço:", font="Ivy 12", bg=color("background"))
+        self.prod.place(relx=0.05, rely=0.08, relwidth=0.15, relheight=0.1)
+        self.prod_entry = Entry(self.frameup, font="Ivy 11")
+        self.prod_entry.place(relx=0.215, rely=0.1, relwidth=0.68, relheight=0.05)
 
         self.mat = Label(self.frameup, text="Material:", font="Ivy 12", bg=color("background"))
         self.mat.place(relx=0.05, rely=0.17, relwidth=0.15, relheight=0.1)

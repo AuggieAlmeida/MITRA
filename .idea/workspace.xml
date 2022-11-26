@@ -2,23 +2,64 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="79a4d406-2001-49dc-ad61-e9c514374f29" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/views/FluxoView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/salvarorc.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/clientes.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/base.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/base.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/comercial.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/database/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/produtos.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/reports/clientes.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/reports/clientes.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/reports/comercial.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/reports/comercial.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/reports/produtos.csv" beforeDir="false" afterPath="$PROJECT_DIR$/database/reports/produtos.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_17776888152.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_31493580451.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_55812576587.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_23-11-2022_72327447458.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/ClientesCadView.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_11204243071.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_14355395601.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_15160334687.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_18524214814.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_18744571575.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_19050246028.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_19324998520.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_19705984623.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_20901016127.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_25629686072.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_26275181609.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_28324614082.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_28368557243.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_28836813817.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_29128311578.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_31078295778.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_37252930870.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_39275414786.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_39301249116.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_40675594163.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_41725356900.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_41726355072.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_45295056150.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_46336891124.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_50739399221.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_58145470843.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_62723027152.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_63375711515.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_63507313682.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_68742724450.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_70885769787.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_78645068629.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_81078013824.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_85783459063.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_92256456232.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/Reg/1_nome_25-11-2022_94920023747.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_10492396101.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_16575604396.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_33559814289.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_55422236486.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_72162862471.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_73209524506.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_89061715281.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orçamentos/nome_orçamento25-11-2022_93173435942.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ClientesView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ClientesView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ComercialView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ComercialView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/HomePage.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ProdutosView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ProdutosView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/Splash.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

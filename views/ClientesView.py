@@ -101,7 +101,7 @@ class ClientsController:
     def insertClient(self):
         self.getEntry()
         if self.name == '':
-            messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
+            messagebox.showerror('Erro', 'Preencha os dados obrigatórios.')
         else:
             self.getEntry()
             self.connect_db()
@@ -110,7 +110,7 @@ class ClientsController:
                                 (self.name, self.email, self.cp, self.occup, self.datecad, self.birthday,
                                  self.obs, self.lead))
             self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso')
+            messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso.')
             self.disconnect_db()
 
             cod = [self.cp]
@@ -157,7 +157,7 @@ class ClientsController:
                     VALUES (?, ?, ?, ?)""",
                                 (self.cod, self.cep, self.city, self.end))
             self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Endereço inserido com sucesso')
+            messagebox.showinfo('Sucesso', 'Endereço inserido com sucesso.')
             self.disconnect_db()
             self.treecepReload()
 
@@ -173,7 +173,7 @@ class ClientsController:
                     VALUES (?, ?, ?)""",
                                 (self.ctt, self.typectt, self.cod))
             self.conn.commit()
-            messagebox.showinfo('Sucesso', 'Contato inserido com sucesso')
+            messagebox.showinfo('Sucesso', 'Contato inserido com sucesso.')
             self.disconnect_db()
             self.treecttReload()
 
@@ -276,7 +276,7 @@ class ClientsController:
     def deleteClient(self):
         self.getEntry()
         self.msg_box = messagebox.askquestion('Deletar cliente',
-                                              'Tem certeza que deseja deletar o cliente ' + self.name)
+                                              'Tem certeza que deseja deletar o cliente ' + self.name + '.')
         if self.msg_box == 'yes':
             self.connect_db()
             self.cursor.execute(""" DELETE FROM tb_clientes 
@@ -289,7 +289,7 @@ class ClientsController:
         self.getEntry()
         self.getCepEntry()
         self.msg_boxcep = messagebox.askquestion('Deletar endereço',
-                                                 f'Tem certeza que deseja deletar o endereço {self.cep} \ndo cliente {self.name}')
+                                                 f'Tem certeza que deseja deletar o endereço {self.cep} \ndo cliente {self.name}.')
         if self.msg_boxcep == 'yes':
             self.connect_db()
             self.cursor.execute(""" DELETE FROM tb_enderecos 
@@ -303,7 +303,7 @@ class ClientsController:
         self.getEntry()
         self.getCttEntry()
         self.msg_boxctt = messagebox.askquestion('Deletar número',
-                                                 f'Tem certeza que deseja deletar o número {self.ctt} \ndo cliente {self.name}')
+                                                 f'Tem certeza que deseja deletar o número {self.ctt} \ndo cliente {self.name}.')
         if self.msg_boxctt == 'yes':
             self.connect_db()
             self.cursor.execute(""" DELETE FROM tb_contatos 
@@ -382,7 +382,7 @@ class ClientsController:
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw"]
-        h = [15, 40, 130, 95]
+        h = [10, 50, 140, 90]
         n = 0
 
         for col in self.adress_header:
@@ -462,7 +462,7 @@ class ClientsController:
 
             self.cadaddress_entry.insert(END, f'{self.log}, {self.bai} - {self.loc}, {self.uf}')
         else:
-            messagebox.showinfo("ERRO", "Cep inválido")
+            messagebox.showinfo("ERRO", "Cep inválido.")
 
     def OnDoubleClick(self, event):
         self.clean()
@@ -583,7 +583,7 @@ class ClientsView(ClientsController):
 
         self.clrImg = PhotoImage(file=r"assets\lixo.png")
         self.bt_limpar = Button(self.frameup, image=self.clrImg, bg=color("background"), relief='flat',
-                                command=self.clean)
+                                command=self.clearAll)
         self.bt_limpar.place(relx=0.88, rely=0.07, relwidth=0.08, relheight=0.07)
 
         self.rprtImg = PhotoImage(file=r'assets\report.png')
@@ -649,7 +649,7 @@ class ClientsView(ClientsController):
         self.vsb2.place(relx=0.93, rely=0.81, relheight=0.17, relwidth=0.03)
 
         hd = ["nw", "nw", "nw", "nw"]
-        h = [15, 40, 130, 95]
+        h = [10, 50, 140, 90]
         n = 0
 
         for col in self.adress_header:
@@ -758,15 +758,22 @@ class ClientsView(ClientsController):
 
     def crtCep(self):
         if self.cep_entry.get() == '' or self.n_entry.get() == '':
-            messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
+            messagebox.showerror('Erro', 'Preencha os dados obrigatórios.')
         else:
             self.insertCep()
 
     def crtCtt(self):
         if self.ctt_entry.get() == '':
-            messagebox.showerror('Erro', 'Preencha os dados obrigatórios')
+            messagebox.showerror('Erro', 'Preencha os dados obrigatórios.')
         else:
             self.insertCtt()
+
+    def clearAll(self):
+        self.clean()
+        self.cleanctt()
+        self.cleancep()
+        self.treecepReload()
+        self.treecttReload()
 
     def rmvClient(self):
         self.deleteClient()

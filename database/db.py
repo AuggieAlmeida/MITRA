@@ -82,7 +82,8 @@ class Database:
                 status TEXT,
                 tipo TEXT,
                 link TEXT,
-                pagas INTEGER
+                pagas INTEGER,
+                tax REAL
             );
         """)
         self.cursor.execute("""
@@ -103,6 +104,20 @@ class Database:
                 cep TEXT
             );
         """)
+        self.cursor.execute("""
+             CREATE TABLE IF NOT EXISTS tb_saidas (
+                 cod INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                 fornecedor TEXT,
+                 pagamento TEXT,
+                 valor REAL,
+                 parcelas INT,
+                 pago REAL,
+                 total REAL,
+                 obs TEXT,
+                 data TEXT,
+                 status TEXT
+             );
+         """)
         self.cursor.execute("SELECT count(*) FROM INFO")
         COUNT = self.cursor.fetchone()[0]
         if COUNT > 0:
@@ -112,5 +127,7 @@ class Database:
             self.cursor.execute(" INSERT INTO info (empresa, titulo, cnpj, ie, pix, banco, conta, agencia, email, ctt, end, loc, cep) "
                                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                 (create, create, create, create, create, create, create, create, create, create, create, create, create,))
+        self.cursor.execute(
+            " UPDATE tb_comercial SET pagas = 0 WHERE cod = 1")
         self.conn.commit()
         self.disconnect_db()
