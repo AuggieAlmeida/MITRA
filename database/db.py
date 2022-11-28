@@ -40,7 +40,7 @@ class Database:
             CREATE TABLE IF NOT EXISTS tb_enderecos (
                 cod INTEGER PRIMARY KEY AUTOINCREMENT,
                 cliente_cod INTEGER,
-                cep VARCHAR(10) NOT NULL,
+                cep VARCHAR(10),
                 cid TEXT,
                 endereco VARCHAR(120)
             );

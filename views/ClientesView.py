@@ -48,10 +48,17 @@ class ClientsController:
         self.cep = self.cep_entry.get()
         self.n = self.n_entry.get()
         self.compl = self.compl_entry.get()
+        self.endereco = self.cadaddress_entry.get()
 
-    def setCepEntry(self, cod, cep):
+    def setCepEntry(self, cod, cep, end):
         self.cepid.config(text=cod)
-        self.cep_entry.insert(END, cep)
+        try:
+            self.cep_entry.insert(END, cep)
+        except:
+            self.cadaddress_entry.insert(END, end)
+        else:
+            pass
+
 
     def getCttEntry(self):
         self.ctt = self.ctt_entry.get()
@@ -289,7 +296,7 @@ class ClientsController:
         self.getEntry()
         self.getCepEntry()
         self.msg_boxcep = messagebox.askquestion('Deletar endereço',
-                                                 f'Tem certeza que deseja deletar o endereço {self.cep} \ndo cliente {self.name}.')
+                                                 f'Tem certeza que deseja deletar o endereço {self.cep} {self.endereco}\ndo cliente {self.name}.')
         if self.msg_boxcep == 'yes':
             self.connect_db()
             self.cursor.execute(""" DELETE FROM tb_enderecos 
@@ -462,7 +469,8 @@ class ClientsController:
 
             self.cadaddress_entry.insert(END, f'{self.log}, {self.bai} - {self.loc}, {self.uf}')
         else:
-            messagebox.showinfo("ERRO", "Cep inválido.")
+            if self.cep != "":
+                messagebox.showinfo("ERRO", "Cep inválido.")
 
     def OnDoubleClick(self, event):
         self.clean()
@@ -479,9 +487,11 @@ class ClientsController:
         self.cleancep()
         cepcod = self.ceptreeSelect()
         values = self.selectCepbyId(cepcod[0])
-        self.setCepEntry(values[0][0], values[0][1])
-        self.verifyCep()
-
+        self.setCepEntry(values[0][0], values[0][1], values[0][2])
+        try:
+            self.verifyCep()
+        except:
+            pass
     def OnDoubleClick3(self, event):
         self.cleanctt()
         ctt = self.ctttreeSelect()
@@ -840,20 +850,33 @@ class ClientsView(ClientsController):
 
                 for index, element in enumerate(row):
                     if index > 6:
-                        self.num = element.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
+                        if len(element) <= 15:
+                            self.num = element.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
+                        else:
+                            self.num = element
                         if len(self.num) == 11:
                             self.type = 'Celular'
-                        elif len(self.num) == 10:
-                            self.type = 'Telefone'
-                        try:
                             self.connect_db()
                             self.cursor.execute(f""" INSERT INTO tb_contatos (linha, tipo, cliente_cod) 
-                                        VALUES (?, ?, ?)""",
-                                                    (int(self.num), self.type, int(self.lb_id.cget("text"))))
+                                                                    VALUES (?, ?, ?)""",
+                                                (int(self.num), self.type, int(self.lb_id.cget("text"))))
                             self.conn.commit()
                             self.disconnect_db()
-                        except:
-                            pass
+                        elif len(self.num) == 10:
+                            self.type = 'Telefone'
+                            self.connect_db()
+                            self.cursor.execute(f""" INSERT INTO tb_contatos (linha, tipo, cliente_cod) 
+                                                                    VALUES (?, ?, ?)""",
+                                                (int(self.num), self.type, int(self.lb_id.cget("text"))))
+                            self.conn.commit()
+                            self.disconnect_db()
+                        elif self.num:
+                            self.connect_db()
+                            self.cursor.execute(""" INSERT INTO tb_enderecos (cliente_cod, endereco)
+                                                VALUES (?, ?)""",
+                                                (int(self.lb_id.cget("text")), self.num))
+                            self.conn.commit()
+                            self.disconnect_db()
 
                 self.clean()
 
@@ -918,5 +941,7 @@ class ClientsView(ClientsController):
         with file:
             write = csv.writer(file)
             write.writerows(data)
+
+        os.startfile(csv_path)
 
         self.setup()

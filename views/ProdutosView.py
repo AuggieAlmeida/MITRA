@@ -409,6 +409,8 @@ class ProductsView(ProductsController):
                 self.disconnect_db()
                 csvwriter.writerow(row)
 
+        os.startfile(csv_path)
+
     def searchProduct(self):
 
         for widget in self.framedown.winfo_children():

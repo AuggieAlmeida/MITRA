@@ -2,6 +2,7 @@ import sqlite3
 import os
 from tkinter import *
 from tkinter import ttk, messagebox
+from tkcalendar import Calendar
 
 from components import menubar
 from views import ClientesView, ComercialView, ProdutosView, FluxoView
@@ -62,7 +63,7 @@ class App:
         self.root.title("Sacomã Persianas")
         self.root.configure(background=color("background2"))
         set_window_center(self.root, 1260, 680)
-        self.root.resizable(False, False)
+        self.root.resizable(True, True)
         self.root.bind("<B3-Motion>", self.move_app)
         self.root.iconbitmap('assets\icon.ico')
 
@@ -71,13 +72,13 @@ class App:
 
     def frames(self):
         self.frameupleft = GradientFrame(self.root)
-        self.frameupleft.place(relx=0.005, rely=0.1, width=430, height=70)
+        self.frameupleft.place(relx=0.005, rely=0.1, relwidth=0.34, height=70)
 
         self.framedownleft = Frame(self.root, background=color("background"))
-        self.framedownleft.place(relx=0.005, rely=0.21, width=430, height=528)
+        self.framedownleft.place(relx=0.005, rely=0.21, relwidth=0.34, height=528)
 
         self.frameright = Frame(self.root, background=color("background"))
-        self.frameright.place(relx=0.352, rely=0.1, width=810, height=606)
+        self.frameright.place(relx=0.352, rely=0.1, relwidth=0.6450, height=603)
 
         self.framebar = Frame(self.root)
         self.framebar.place(relx=0, rely=0, relwidth=1, height=60)
@@ -172,7 +173,6 @@ class App:
         self.logo = Label(self.framedownleft, image=self.logoImg, background=color("background"))
         self.logo.place(x=0, y=39, relwidth=1, height=390)
 
-
         Label(self.framedownleft, text="                                                 ", font="Ivy 13 bold",
               bg=color("background-bar")). \
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
@@ -196,39 +196,52 @@ class App:
 
         self.lb_bud = Label(self.framereport, text=budgets[0], font=('Arial', 40, 'bold'), bg=color("background"),
                             anchor='center')
-        self.lb_bud.place(relx=0, rely=0.3, relwidth=0.3, relheight=0.69)
-        self.lb_bud = Label(self.framereport, text='Orçamentos cadastrados', font=('Arial', 13, 'bold'),
+        self.lb_bud.place(relx=0, rely=0.4, relwidth=0.3, relheight=0.6)
+        self.lb_bud2 = Label(self.framereport, text='Orçamentos', font=('Arial', 13, 'bold'),
                             bg=color("background"), anchor='center')
-        self.lb_bud.place(relx=0, rely=0.15, relwidth=0.3, relheight=0.1)
+        self.lb_bud2.place(relx=0, rely=0.3, relwidth=0.3, relheight=0.1)
 
         self.lb_sal = Label(self.framereport, text=sales[0], font=('Arial', 40, 'bold'), bg=color("background"),
                             anchor='center')
-        self.lb_sal.place(relx=0.365, rely=0.3, relwidth=0.3, relheight=0.69)
-        self.lb_sal = Label(self.framereport, text='Vendas cadastradas', font=('Arial', 13, 'bold'),
+        self.lb_sal.place(relx=0.365, rely=0.4, relwidth=0.3, relheight=0.6)
+        self.lb_sal2 = Label(self.framereport, text='Vendas', font=('Arial', 13, 'bold'),
                             bg=color("background"), anchor='center')
-        self.lb_sal.place(relx=0.365, rely=0.15, relwidth=0.3, relheight=0.1)
+        self.lb_sal2.place(relx=0.365, rely=0.3, relwidth=0.3, relheight=0.1)
 
         self.lb_ord = Label(self.framereport, text=orders[0], font=('Arial', 40, 'bold'), bg=color("background"),
                             anchor='center')
-        self.lb_ord.place(relx=0.7, rely=0.3, relwidth=0.3, relheight=0.69)
-        self.lb_ord = Label(self.framereport, text='Ordens de serviço\ncadastradas', font=('Arial', 13, 'bold'),
+        self.lb_ord.place(relx=0.7, rely=0.4, relwidth=0.3, relheight=0.6)
+        self.lb_ord2 = Label(self.framereport, text='Ordens de serviço', font=('Arial', 13, 'bold'),
                             bg=color("background"), anchor='center')
-        self.lb_ord.place(relx=0.70, rely=0.15, relwidth=0.3, relheight=0.2)
+        self.lb_ord2.place(relx=0.70, rely=0.3, relwidth=0.3, relheight=0.1)
+
+        self.cmbDatemin = Entry(self.framereport, font=('Arial', 13, 'bold'))
+        self.cmbDatemin.place(relx=0.02, rely=0.02, relwidth=0.12, relheight=0.2)
+
+        self.ate = Label(self.framereport, text='Até', font=('Arial', 13, 'bold'), bg=color("background"))
+        self.ate.place(relx=0.16, rely=0.02, relwidth=0.05, relheight=0.2)
+
+        self.cmbDatemax = Entry(self.framereport, font=('Arial', 13, 'bold'))
+        self.cmbDatemax.place(relx=0.23, rely=0.02, relwidth=0.12, relheight=0.2)
+
+        self.cmbDatemax.bind("<Double-Button-1>", self.calendar2)
+
+        self.cmbDatemin.bind("<Double-Button-1>", self.calendar)
 
         self.framereport2 = LabelFrame(self.frameright, bg=color("background"))
-        self.framereport2.place(relx=0.02, rely=0.45, relwidth=0.35, relheight=0.5)
+        self.framereport2.place(relx=0.02, rely=0.45, relwidth=0.25, relheight=0.5)
 
         self.lb_clients = Label(self.framereport2, text=clients[0], font=('Arial', 40, 'bold'), bg=color("background"),
                                 anchor='center')
-        self.lb_clients.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.4)
-        self.lb_clients = Label(self.framereport2, text='Clientes cadastrados', font=('Arial', 13, 'bold'),
+        self.lb_clients.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.3)
+        self.lb_clients = Label(self.framereport2, text='Clientes', font=('Arial', 13, 'bold'),
                                 bg=color("background"), anchor='center')
-        self.lb_clients.place(relx=0.1, rely=0.03, relwidth=0.8, relheight=0.2)
+        self.lb_clients.place(relx=0.1, rely=0.03, relwidth=0.8, relheight=0.1)
 
         self.lb_products = Label(self.framereport2, text=prod[0], font=('Arial', 40, 'bold'), bg=color("background"),
                                  anchor='center')
-        self.lb_products.place(relx=0.3, rely=0.6, relwidth=0.4, relheight=0.4)
-        self.lb_products = Label(self.framereport2, text='Produtos cadastrados', font=('Arial', 13, 'bold'),
+        self.lb_products.place(relx=0.2, rely=0.6, relwidth=0.6, relheight=0.4)
+        self.lb_products = Label(self.framereport2, text='Produtos', font=('Arial', 13, 'bold'),
                                  bg=color("background"), anchor='center')
         self.lb_products.place(relx=0.195, rely=0.53, relwidth=0.62, relheight=0.2)
 
@@ -240,7 +253,7 @@ class App:
         self.disconnect_db()
 
         self.framereport3 = LabelFrame(self.frameright, bg=color("background"))
-        self.framereport3.place(relx=0.40, rely=0.45, relwidth=0.58, relheight=0.5)
+        self.framereport3.place(relx=0.35, rely=0.45, relwidth=0.63, relheight=0.5)
 
         self.configure = ttk.Notebook(self.framereport3)
 
@@ -404,6 +417,60 @@ class App:
         self.conn.commit()
         messagebox.showinfo('Empresa', 'Dados da empresa registrados com sucesso.')
         self.disconnect_db()
+
+    def calendar(self, event):
+        self.calendar = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), locale='pt_br')
+        self.calendar.place(relx=0.01, rely=0.02, relheight=0.96)
+        self.date_btn = Button(self.framereport, font="Ivy 11", text="Inserir Data", command=self.printCal)
+        self.date_btn.place(relx=0.35, rely=0.04, relwidth=0.2, relheight=0.2)
+
+
+    def calendar2(self, event):
+        self.calendar2 = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), locale='pt_br')
+        self.calendar2.place(relx=0.01, rely=0.02, relheight=0.96)
+        self.date_btn2 = Button(self.framereport, font="Ivy 11", text="Inserir Data",
+                                command=self.printCal2)
+        self.date_btn2.place(relx=0.35, rely=0.04, relwidth=0.2, relheight=0.2)
+
+    def printCal(self):
+        dataIni = self.calendar.get_date().replace("/", "-")
+        if dataIni < self.cmbDatemax.get() or self.cmbDatemax.get() == '':
+            self.calendar.destroy()
+            self.cmbDatemin.delete(0, END)
+            self.cmbDatemin.insert(END, dataIni)
+            self.date_btn.destroy()
+            if self.cmbDatemax.get() == '':
+                self.cmbDatemax.insert(END, dataIni)
+        else:
+            messagebox.showinfo('Erro', f'Insira uma data anterior à: {self.cmbDatemax.get()}')
+
+        self.printRep()
+
+
+    def printCal2(self):
+        dataIni = self.calendar2.get_date().replace("/", "-")
+        if dataIni >= self.cmbDatemin.get():
+            self.calendar2.destroy()
+            self.cmbDatemax.delete(0, END)
+            self.cmbDatemax.insert(END, dataIni)
+            self.date_btn2.destroy()
+        else:
+            messagebox.showinfo('Erro', f'Insira uma data posterior à: {self.cmbDatemin.get()}')
+
+        self.printRep()
+
+    def printRep(self):
+        self.connect_db()
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'orçamento' AND data > ? AND data < ?", (self.cmbDatemin.get(), self.cmbDatemax.get()))
+        budgets = self.cursor.fetchone()
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'venda'")
+        sales = self.cursor.fetchone()
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'ordem'")
+        orders = self.cursor.fetchone()
+        self.disconnect_db()
+
+        self.lb_bud.config(text=budgets)
+
 
 
 

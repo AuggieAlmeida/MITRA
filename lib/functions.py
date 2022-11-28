@@ -4,8 +4,7 @@ def set_window_center(window, width, height):
     x_co = (w_s - width) / 2
     y_co = (h_s - height) / 2 - 50
     window.geometry("%dx%d+%d+%d" % (width, height, x_co, y_co))
-    window.minsize(width, height)
-
+    window.maxsize(width, height)
 
 def set_window_sided(window, width, height):
     w_s = window.winfo_screenwidth()

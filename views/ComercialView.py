@@ -530,19 +530,19 @@ class ComercialView(ComercialController):
         self.lb_num.config(state=DISABLED)
 
     def init_budgets2(self):
-        self.lblf = Label(self.framedown, font=('arial', 13, 'bold'), text="Frete:", bg=color("background"),
-                          anchor='e', justify=RIGHT)
-        self.lblf.place(relx=0.0148, rely=0.66, relwidth=0.07, relheight=0.08)
-        self.lblfrete = Label(self.framedown, font=('arial', 13, 'bold'), text="Não será cobrado frete",
-                              bg=color("background"), anchor='w', justify=LEFT)
-        self.lblfrete.place(relx=0.0835, rely=0.66, relwidth=0.6, relheight=0.08)
 
         self.lblv = Label(self.framedown, font=('arial', 13, 'bold'), text="Visita:", bg=color("background"),
                           anchor='w', justify=RIGHT)
-        self.lblv.place(relx=0.018, rely=0.71, relwidth=0.7, relheight=0.08)
+        self.lblv.place(relx=0.018, rely=0.72, relwidth=0.7, relheight=0.08)
         self.lblvisita = Label(self.framedown, font=('arial', 13, 'bold'), text="Não será cobrada visita",
                                bg=color("background"), anchor='w', justify=LEFT)
-        self.lblvisita.place(relx=0.0835, rely=0.71, relwidth=0.4, relheight=0.08)
+        self.lblvisita.place(relx=0.0835, rely=0.72, relwidth=0.4, relheight=0.08)
+
+        self.lblf = Label(self.framedown, font=('arial', 13, 'bold'), text="Deslocamento:", bg=color("background"),
+                          anchor='e', justify=RIGHT)
+        self.lblf.place(relx=0.02, rely=0.665, relwidth=0.15, relheight=0.08)
+        self.lblfrete = Entry(self.framedown, font=('arial', 13, 'bold'), justify=LEFT)
+        self.lblfrete.place(relx=0.18, rely=0.68, relwidth=0.14, relheight=0.05)
 
         self.lblSubTotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Subtotal", bg=color("background"),
                                  anchor='e', justify=RIGHT)
@@ -1213,7 +1213,7 @@ class ComercialView(ComercialController):
             glv.get_variable("APP_PATH"),
             "orçamentos",
             "Reg",
-            f"{self.link}.csv"
+            f"{self.link}.xlsx"
         )
 
         data = []
@@ -1603,6 +1603,8 @@ class ComercialView(ComercialController):
                 data = [row[0], row[2], rowcep[0], rowcep[1], rowcep[2], row[3], row[4], row[5], row[8], f'R$ {self.entrada}',row[6], row[7],  row[9], row[12], self.stage]
                 csvwriter.writerow(data)
 
+        os.startfile(csv_path)
+
     def filtercmb(self, event):
         for widget in self.framedown.winfo_children():
             widget_class = widget.__class__.__name__
@@ -1711,3 +1713,18 @@ class ComercialView(ComercialController):
         self.conn.commit()
         messagebox.showinfo('Sucesso', 'Dados atualizados com sucesso.')
         self.disconnect_db()
+
+    def searchProduct(self):
+
+        for widget in self.framedown.winfo_children():
+            widget_class = widget.__class__.__name__
+            if widget_class == 'Treeview':
+                widget.destroy()
+
+        if self.prod_entry.get() == '':
+           list = self.selectAllProducts()
+        else:
+            if self.prod_entry.get() != '':
+                list = self.searchProductbyName()
+
+        self.treeReload(list)

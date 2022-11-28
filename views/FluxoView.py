@@ -204,8 +204,8 @@ class FluxoView(FluxoController):
     def init_layoutcad(self):
         self.lb_id = Label(self.frameup)
 
-        self.supplier = Label(self.frameup, text="Fornecedor:", font="Ivy 12", bg=color("background"))
-        self.supplier.place(relx=0.02, rely=0.07, relwidth=0.2, relheight=0.1)
+        self.supplier = Label(self.frameup, text="Destino:", font="Ivy 12", bg=color("background"))
+        self.supplier.place(relx=0.052, rely=0.07, relwidth=0.2, relheight=0.1)
         self.supplier_entry = Entry(self.frameup, font="Ivy 11")
         self.supplier_entry.place(relx=0.245, rely=0.1, relwidth=0.65, relheight=0.05)
 
@@ -262,12 +262,12 @@ class FluxoView(FluxoController):
     def init_DRE(self):
         self.lucrobru = Label(self.framedown, text=" ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
         self.lucrobru.place(relx=0.80, rely=0.80, relwidth=0.18, relheight=0.08)
-        self.lb1 = Label(self.framedown, text="Lucro Bruto: ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
+        self.lb1 = Label(self.framedown, text="Receita Bruta: ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
         self.lb1.place(relx=0.65, rely=0.80, relwidth=0.18, relheight=0.08)
 
         self.lucroliq = Label(self.framedown, text=" ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
         self.lucroliq.place(relx=0.80, rely=0.89, relwidth=0.18, relheight=0.08)
-        self.lb2 = Label(self.framedown, text="Lucro Líquido: ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
+        self.lb2 = Label(self.framedown, text="Receita Líquida: ", font="Ivy 14", bg=color("background"), anchor='e', justify=RIGHT)
         self.lb2.place(relx=0.65, rely=0.89, relwidth=0.18, relheight=0.08)
 
 
@@ -390,5 +390,7 @@ class FluxoView(FluxoController):
         with file:
             write = csv.writer(file)
             write.writerows(data)
+
+        os.startfile(csv_path)
 
         self.setup()
