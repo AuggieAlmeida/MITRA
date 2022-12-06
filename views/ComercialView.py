@@ -456,17 +456,17 @@ class ComercialView(ComercialController):
         self.budgetsIMG = PhotoImage(file=r"assets\ORC.png")
         self.btn_budgets = Button(self.frameup, image=self.budgetsIMG, relief='flat',
                                   command=lambda: self.filter('orçamento'))
-        self.btn_budgets.place(relx=0.02, rely=0.625, width=130, height=100)
+        self.btn_budgets.place(relx=0.020, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.salesIMG = PhotoImage(file=r"assets\VEN.png")
         self.btn_sales = Button(self.frameup, image=self.salesIMG, relief='flat',
                                   command=lambda: self.filter('venda'))
-        self.btn_sales.place(relx=0.349, rely=0.625, width=130, height=100)
+        self.btn_sales.place(relx=0.39, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.orderIMG = PhotoImage(file=r"assets\ORD.png")
         self.btn_order = Button(self.frameup, image=self.orderIMG, relief='flat',
                                   command=lambda: self.filter('ordem'))
-        self.btn_order.place(relx=0.678, rely=0.625, width=130, height=100)
+        self.btn_order.place(relx=0.755, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.rprtImg = PhotoImage(file=r'assets\report.png')
         self.bt_report = Button(self.framebar, image=self.rprtImg, relief='flat',
@@ -512,6 +512,7 @@ class ComercialView(ComercialController):
         self.lb_id = Label(self.frameup, text="0", font='Ivy 16', background=color("background"),
                            anchor="w", justify=LEFT)
         self.lb_id.place(relx=0.78, rely=0.42, relheight=0.06, relwidth=0.15)
+
 
         self.lb_name = Entry(self.frameup, background=color("background"))
         self.lb_name.place(relx=0.73, rely=0.50, relheight=0.06, relwidth=0.25)
@@ -650,6 +651,9 @@ class ComercialView(ComercialController):
         self.budid.place(relx=0.02, rely=0.013)
         self.lb_idbud = Label(self.framedown, text="0", font="Ivy 20", background="#CEDCE4", justify=LEFT)
         self.lb_idbud.place(relx=0.1, rely=0.013)
+
+        self.lb_typebud = Label(self.framedown, text="", font="Ivy 18", background="#CEDCE4", anchor='e', justify=RIGHT)
+        self.lb_typebud.place(relx=0.73, rely=0.013, relwidth=0.25)
 
     def init_budgetButtons(self):
         self.svbudImg = PhotoImage(file=r"assets\genorc.png")
@@ -1086,6 +1090,12 @@ class ComercialView(ComercialController):
         self.desconto = row[8]#
         self.sub = row[7]#
         self.anotac = row[11]#
+        if row[14] == 'venda':
+            self.type = "Venda"
+        elif row[14] == 'ordem':
+            self.type = 'Ordem de serviço'
+        elif row[14] == 'orçamento':
+            self.type = 'Orçamento'
         self.status = row[13]#
         self.orcamento = row[15]#
 
@@ -1095,6 +1105,7 @@ class ComercialView(ComercialController):
         self.disconnect_db()
 
         self.lb_idbud.config(text=self.id)
+        self.lb_typebud.config(text=self.type)
         try:
             self.lb_name.config(state=NORMAL)
             self.lb_cep.config(state=NORMAL)
@@ -1213,7 +1224,7 @@ class ComercialView(ComercialController):
             glv.get_variable("APP_PATH"),
             "orçamentos",
             "Reg",
-            f"{self.link}.xlsx"
+            f"{self.link}.csv"
         )
 
         data = []

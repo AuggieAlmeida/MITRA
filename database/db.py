@@ -28,7 +28,6 @@ class Database:
                 nome VARCHAR(80) NOT NULL,
                 email VARCHAR(120),
                 cp VARCHAR(20),
-                profissao VARCHAR(40),
                 nascimento VARCHAR(11),
                 datacad VARCHAR(11),
                 fiscal char(255),
@@ -61,6 +60,8 @@ class Database:
                 m REAL,
                 m2 REAL,
                 unit REAL,
+                liq REAL,
+                bru REAL,
                 descricao TEXT
             );
         """)
@@ -83,7 +84,8 @@ class Database:
                 tipo TEXT,
                 link TEXT,
                 pagas INTEGER,
-                tax REAL
+                tax REAL,
+                desloc REAL
             );
         """)
         self.cursor.execute("""
@@ -101,7 +103,8 @@ class Database:
                 ctt TEXT,
                 end TEXT,
                 loc TEXT,
-                cep TEXT
+                cep TEXT,
+                comissao REAL
             );
         """)
         self.cursor.execute("""
@@ -118,6 +121,18 @@ class Database:
                  status TEXT
              );
          """)
+        self.cursor.execute("""
+                     CREATE TABLE IF NOT EXISTS tb_tax (
+                         cod INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                         taxa REAL
+                     );
+                 """)
+        self.cursor.execute("""
+                     CREATE TABLE IF NOT EXISTS tb_status (
+                         cod INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                         status TEXT
+                     );
+                 """)
         self.cursor.execute("SELECT count(*) FROM INFO")
         COUNT = self.cursor.fetchone()[0]
         if COUNT > 0:
@@ -127,7 +142,12 @@ class Database:
             self.cursor.execute(" INSERT INTO info (empresa, titulo, cnpj, ie, pix, banco, conta, agencia, email, ctt, end, loc, cep) "
                                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                 (create, create, create, create, create, create, create, create, create, create, create, create, create,))
-        self.cursor.execute(
-            " UPDATE tb_comercial SET pagas = 0 WHERE cod = 1")
+        for i in range(0, 12):
+            self.cursor.execute("SELECT count(*) FROM tb_tax")
+            taxes = self.cursor.fetchone()[0]
+            if taxes >=12:
+                pass
+            else:
+                self.cursor.execute(" INSERT INTO tb_tax (taxa) VALUES (?)", ("",))
         self.conn.commit()
         self.disconnect_db()

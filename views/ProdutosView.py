@@ -23,9 +23,11 @@ class ProductsController:
         self.m = self.m_entry.get()
         self.m2 = self.m2_entry.get()
         self.qtd = self.qtd_entry.get()
+        self.liq = self.liq_entry.get()
+        self.bru = self.bru_entry.get()
         self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
 
-    def setEntry(self, cod, name, mat, kg, m, m2, qtd, obs):
+    def setEntry(self, cod, name, mat, kg, m, m2, qtd, liq, bru,obs):
         self.lb_id.config(text=cod)
         self.prod_entry.insert(END, name)
         self.mat_entry.insert(END, mat)
@@ -33,6 +35,8 @@ class ProductsController:
         self.m_entry.insert(END, m)
         self.m2_entry.insert(END, m2)
         self.qtd_entry.insert(END, qtd)
+        self.liq_entry.insert(END, liq)
+        self.bru_entry.insert(END, bru)
         self.obs_entry.insert("1.0", obs)
 
     def clean(self):
@@ -42,6 +46,8 @@ class ProductsController:
         self.m_entry.delete(0, END)
         self.m2_entry.delete(0, END)
         self.qtd_entry.delete(0, END)
+        self.liq_entry.delete(0, END)
+        self.bru_entry.delete(0, END)
         self.obs_entry.delete("1.0", END)
 
     def connect_db(self):
@@ -77,7 +83,18 @@ class ProductsController:
                 self.qtd = 0
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
-            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
+
+            if self.liq == "" and float(self.liq) >= 0:
+                self.liq = 0
+            else:
+                self.liq = float(self.liq.replace(",", "."))
+
+            if self.bru == "" and float(self.bru) >= 0:
+                self.bru = 0
+            else:
+                self.bru = float(self.bru.replace(",", "."))
+
+            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0 or float(self.liq) < 0 or float(self.bru) < 0:
                 messagebox.showerror('Erro', 'Preço inválido.')
                 return
         except:
@@ -89,9 +106,9 @@ class ProductsController:
 
                 self.clean()
                 self.connect_db()
-                self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, m2, unit, descricao)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                                    (self.prod, self.mat,f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', self.obs))
+                self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, m2, unit, liq, bru, descricao)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                                    (self.prod, self.mat,f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}',f'{self.liq:.2f}', f'{self.bru:.2f}', self.obs))
                 self.conn.commit()
                 messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso.')
                 self.disconnect_db()
@@ -139,7 +156,18 @@ class ProductsController:
                 self.qtd = 0
             else:
                 self.qtd = float(self.qtd.replace(",", "."))
-            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0:
+
+            if self.liq == "" and float(self.liq) >= 0:
+                self.liq = 0
+            else:
+                self.liq = float(self.liq.replace(",", "."))
+
+            if self.bru == "" and float(self.bru) >= 0:
+                self.bru = 0
+            else:
+                self.bru = float(self.bru.replace(",", "."))
+
+            if float(self.kg) < 0 or float(self.m) < 0 or float(self.m2) < 0 or float(self.qtd) < 0 or float(self.liq) < 0 or float(self.bru) < 0:
                 messagebox.showerror('Erro', 'Preço inválido.')
                 return
         except:
@@ -155,8 +183,10 @@ class ProductsController:
                     m = ?,
                     m2 = ?,
                     unit = ?,
+                    liq = ?,
+                    bru = ?,
                     descricao = ?
-                    WHERE cod = ?""", (self.prod, self.mat, f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', self.obs, self.cod))
+                    WHERE cod = ?""", (self.prod, self.mat, f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', f'{self.liq:.2f}', f'{self.bru:.2f}', self.obs, self.cod))
                 self.conn.commit()
                 self.disconnect_db()
                 self.clean()
@@ -194,7 +224,7 @@ class ProductsController:
     def treeReload(self, list):
         global tree
 
-        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit']
+        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit', 'Valor Líquido', 'Valor Bruto']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -202,8 +232,8 @@ class ProductsController:
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.87)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.87)
 
-        hd = ["nw", "nw", "nw", "center", "center", "center", "center"]
-        h = [10, 260, 190, 70, 70, 70, 70]
+        hd = ["nw", "nw", "nw", "center", "center", "center", "center", "center", "center"]
+        h = [10, 200, 150, 50, 50, 50, 50, 80, 80]
         n = 0
 
         for col in self.list_header:
@@ -229,7 +259,7 @@ class ProductsController:
         cod = self.treeSelect()
         values = self.selectProductbyId(cod[0])
         self.setEntry(values[0][0], values[0][1], values[0][2], values[0][3], values[0][4], values[0][5],
-                      values[0][6], values[0][7])
+                      values[0][6], values[0][7], values[0][8], values[0][9])
 
 
 class ProductsView(ProductsController):
@@ -308,23 +338,43 @@ class ProductsView(ProductsController):
         self.ckb_M = Label(self.frameup, text='M', font='Ivy 11', bg=color("background"))
         self.ckb_M.place(relx=0.29, rely=0.42)
 
+
         self.lb_qtd = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.lb_qtd.place(relx=0.50, rely=0.34)
+        self.lb_qtd.place(relx=0.38, rely=0.34)
 
         self.qtd_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.qtd_entry.place(relx=0.56, rely=0.34, relwidth=0.15, relheight=0.05)
+        self.qtd_entry.place(relx=0.44, rely=0.34, relwidth=0.15, relheight=0.05)
 
         self.ckb_Qtd = Label(self.frameup, text='Qtd', font='Ivy 11', bg=color("background"))
-        self.ckb_Qtd.place(relx=0.72, rely=0.34)
+        self.ckb_Qtd.place(relx=0.60, rely=0.34)
 
         self.lb_qtd = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
-        self.lb_qtd.place(relx=0.50, rely=0.42)
+        self.lb_qtd.place(relx=0.38, rely=0.42)
 
         self.m2_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
-        self.m2_entry.place(relx=0.56, rely=0.42, relwidth=0.15, relheight=0.05)
+        self.m2_entry.place(relx=0.44, rely=0.42, relwidth=0.15, relheight=0.05)
 
         self.ckb_m2 = Label(self.frameup, text='M²', font='Ivy 11', bg=color("background"))
-        self.ckb_m2.place(relx=0.72, rely=0.42)
+        self.ckb_m2.place(relx=0.60, rely=0.42)
+
+
+        self.lb_liq = Label(self.frameup, text='Liq:', font='Ivy 11', bg=color("background"))
+        self.lb_liq.place(relx=0.70, rely=0.34)
+
+        self.liq_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
+        self.liq_entry.place(relx=0.78, rely=0.34, relwidth=0.12, relheight=0.05)
+
+        self.lb_bru = Label(self.frameup, text='Bru:', font='Ivy 11', bg=color("background"))
+        self.lb_bru.place(relx=0.70, rely=0.42)
+
+        self.bru_entry = Entry(self.frameup, font="Ivy 11", justify=RIGHT)
+        self.bru_entry.place(relx=0.78, rely=0.42, relwidth=0.12, relheight=0.05)
+
+        self.lb_liq = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_liq.place(relx=0.90, rely=0.34)
+        self.lb_bru = Label(self.frameup, text='R$', font='Ivy 11', bg=color("background"))
+        self.lb_bru.place(relx=0.90, rely=0.42)
+
 
         self.cadobs = Label(self.frameup, text="Descrição:", font="Ivy 13", background=color("background"))
         self.cadobs.place(relx=0.02, rely=0.51)
@@ -340,6 +390,9 @@ class ProductsView(ProductsController):
         self.m_entry.insert(END, "0")
         self.m2_entry.insert(END, "0")
         self.qtd_entry.insert(END, "0")
+        self.liq_entry.insert(END, "0")
+        self.bru_entry.insert(END, "0")
+
 
     def init_buttons(self):
 
@@ -351,23 +404,28 @@ class ProductsView(ProductsController):
         self.attImg = PhotoImage(file=r"assets\ATUALIZAR.png")
         self.bt_update = Button(self.frameup, image=self.attImg, relief='flat',
                                 command=self.updateProduct)
-        self.bt_update.place(relx=0.38, rely=0.88, relwidth=0.225, relheight=0.1)
+        self.bt_update.place(relx=0.265, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.dltImg = PhotoImage(file=r"assets\DELETAR.png")
         self.bt_delete = Button(self.frameup, image=self.dltImg, relief='flat',
                                 command=self.deleteProduct)
-        self.bt_delete.place(relx=0.75, rely=0.88, relwidth=0.225, relheight=0.1)
+        self.bt_delete.place(relx=0.51, rely=0.88, relwidth=0.225, relheight=0.1)
 
         self.rprtImg = PhotoImage(file=r'assets\report.png')
         self.bt_report = Button(self.framebar,image=self.rprtImg, relief='flat',
                                 command=self.genReport)
         self.bt_report.place(relx=0.8, rely=0.08, width=70, height=60)
 
+        self.imprtImg = PhotoImage(file=r"assets\IMPORTAR.png")
+        self.bt_import = Button(self.frameup, image=self.imprtImg, relief='flat',
+                                command=self.open_csv)
+        self.bt_import.place(relx=0.755, rely=0.88, relwidth=0.225, relheight=0.1)
+
     def init_tree(self):
         global tree
         list = self.selectAllProducts()
 
-        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit']
+        self.list_header = ['ID', 'Serviço', 'Material', 'R$/Kg', 'R$/M', 'R$/M²', 'R$ Unit', 'Valor Líquido', 'Valor Bruto']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -375,8 +433,8 @@ class ProductsView(ProductsController):
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.87)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.87)
 
-        hd = ["nw", "nw", "nw", "center","center", "center", "center"]
-        h = [10, 260, 190, 70, 70, 70, 70]
+        hd = ["nw", "nw", "nw", "center", "center", "center", "center", "center", "center"]
+        h = [10, 200, 150, 50, 50, 50, 50, 80, 80]
         n = 0
 
         for col in self.list_header:
@@ -425,3 +483,34 @@ class ProductsView(ProductsController):
                 list = self.searchProductbyName()
 
         self.treeReload(list)
+
+    def open_csv(self):
+        csv_path = os.path.join(
+            glv.get_variable("APP_PATH"),
+            glv.get_variable("DATA_DIR"),
+            "catálago.csv"
+        )
+        self.clean()
+
+        with open(csv_path, "rt") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                entry = row
+                self.prod_entry.insert(END, entry[0])
+                self.mat_entry.insert(END, entry[1])
+                self.kg_entry.insert(END, entry[2])
+                self.m_entry.insert(END, entry[4])
+                self.m2_entry.insert(END, entry[3])
+                self.qtd_entry.insert(END, entry[5])
+                self.qtd_entry.insert(END, entry[6])
+                self.qtd_entry.insert(END, entry[7])
+                self.obs_entry.insert("1.0", entry[8])
+
+                self.getEntry()
+
+                self.connect_db()
+                self.cursor.execute(""" INSERT INTO tb_produtos (servico, material, kg, m, m2, unit, liq, bru, descricao)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                                    (self.prod, self.mat, f'{self.kg:.2f}', f'{self.m:.2f}', f'{self.m2:.2f}', f'{self.qtd:.2f}', f'{self.liq:.2f}', f'{self.bru:.2f}', self.obs))
+                self.conn.commit()
+                self.disconnect_db()

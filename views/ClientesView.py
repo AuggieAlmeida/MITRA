@@ -23,19 +23,19 @@ class ClientsController:
         self.name = self.name_entry.get()
         self.email = self.email_entry.get()
         self.cp = self.cod_entry.get()
-        self.occup = self.occup_entry.get()
         self.birthday = self.birth.get()
+        self.rec = self.recor.get()
         self.datecad = date.today().strftime("%d/%m/%Y")
         self.obs = (self.obs_entry.get("1.0", "end-1c")).strip()
         self.lead = self.lead_entry.get()
 
-    def setEntry(self, cod, name, email, cp, occup, birth, datecad, obs, lead):
+    def setEntry(self, cod, name, email, cp, birth, datecad, obs, lead, rec):
         self.lb_id.config(text=cod)
         self.name_entry.insert(END, name)
         self.email_entry.insert(END, email)
         self.cod_entry.insert(END, cp)
         self.birth.insert(END, birth)
-        self.occup_entry.insert(END, occup)
+        self.recor.set(rec)
         self.lb_date.config(text=datecad)
         self.obs_entry.insert("1.0", obs)
         try:
@@ -59,7 +59,6 @@ class ClientsController:
         else:
             pass
 
-
     def getCttEntry(self):
         self.ctt = self.ctt_entry.get()
         self.typectt = self.cmbctt.get()
@@ -76,8 +75,8 @@ class ClientsController:
         self.cod_entry.delete(0, END)
         self.name_entry.delete(0, END)
         self.email_entry.delete(0, END)
-        self.occup_entry.delete(0, END)
         self.birth.delete(0, END)
+        self.recor.set('0')
         self.lb_date.config(text="")
         self.lead_entry.delete(0, END)
         self.obs_entry.delete("1.0", END)
@@ -112,10 +111,10 @@ class ClientsController:
         else:
             self.getEntry()
             self.connect_db()
-            self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal, lead)
+            self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, datacad, nascimento, fiscal, lead, fiel)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                                (self.name, self.email, self.cp, self.occup, self.datecad, self.birthday,
-                                 self.obs, self.lead))
+                                (self.name, self.email, self.cp, self.datecad, self.birthday,
+                                 self.obs, self.lead, self.rec))
             self.conn.commit()
             messagebox.showinfo('Sucesso', 'Dados inseridos com sucesso.')
             self.disconnect_db()
@@ -199,7 +198,7 @@ class ClientsController:
     def selectReportClients(self):
         auxlist = []
         self.connect_db()
-        self.cursor.execute(""" SELECT cod, nome, email, cp, profissao, nascimento, fiscal FROM tb_clientes """)
+        self.cursor.execute(""" SELECT cod, nome, email, cp, nascimento, fiscal FROM tb_clientes """)
         self.info = self.cursor.fetchall()
 
         for i in self.info:
@@ -272,11 +271,11 @@ class ClientsController:
             nome = ?,
             email = ?,
             cp = ?,
-            profissao = ?,
             nascimento = ?,
             fiscal = ?,
-            lead = ?
-            WHERE cod = ?""", (self.name, self.email, self.cp, self.occup, self.birthday, self.obs, self.lead, self.cod))
+            lead = ?,
+            fiel = ?
+            WHERE cod = ?""", (self.name, self.email, self.cp, self.birthday, self.obs, self.lead, self.rec, self.cod))
         self.conn.commit()
         self.disconnect_db()
 
@@ -350,7 +349,7 @@ class ClientsController:
 
         listClient = list
 
-        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Profissão', 'Data de nascimento']
+        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Data de nascimento']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -358,8 +357,8 @@ class ClientsController:
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.490)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.490)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [30, 190, 190, 90, 100, 100]
+        hd = ["nw", "nw", "nw", "center", "center"]
+        h = [30, 190, 190, 100, 100]
         n = 0
 
         for col in self.list_header:
@@ -499,6 +498,7 @@ class ClientsController:
 
 class ClientsView(ClientsController):
     def __init__(self, frameup, framedown, framebar):
+        self.recor = StringVar()
         self.list_cli = ttk.Treeview
         self.framedown = framedown
         self.frameup = frameup
@@ -546,34 +546,35 @@ class ClientsView(ClientsController):
               bg=color("background")). \
             place(relx=0, rely=0.27, relwidth=1, relheight=0.04)
 
-        self.lb_occup = Label(self.frameup, text="Profissão:", font="Ivy 11", bg=color("background"))
-        self.lb_occup.place(relx=0.02, rely=0.32, relwidth=0.16)
-        self.occup_entry = Entry(self.frameup, font="Ivy 11")
-        self.occup_entry.place(relx=0.02, rely=0.37, relwidth=0.58, relheight=0.05)
+        self.lb_recor = Checkbutton(self.frameup, text="Recorrente", font="Ivy 10", bg=color("background"), variable=self.recor)
+        self.lb_recor.place(relx=0.55, rely=0.09, relwidth=0.25)
+        self.recor.set(0)
 
-        self.lb_birth = Label(self.frameup, text="Data de Nasc.:", font="Ivy 11", bg=color("background"))
-        self.lb_birth.place(relx=0.65, rely=0.32, relwidth=0.24)
+
+
+        self.lb_birth = Label(self.frameup, text="Data de Nasc.:", font="Ivy 12", bg=color("background"))
+        self.lb_birth.place(relx=0.65, rely=0.33, relwidth=0.24)
         self.birth = Entry(self.frameup)
-        self.birth.place(relx=0.65, rely=0.37, relwidth=0.30, relheight=0.05)
+        self.birth.place(relx=0.65, rely=0.39, relwidth=0.30, relheight=0.06)
 
         Label(self.frameup, text="________________________________________________", font="Ivy 13",
               bg=color("background")). \
-            place(relx=0, rely=0.42, relwidth=1, relheight=0.04)
+            place(relx=0, rely=0.46, relwidth=1, relheight=0.04)
 
         Label(self.frameup, text="                                                 ", font="Ivy 13 bold",
               bg=color("background-bar")). \
             place(relx=0, rely=0.84, relwidth=1, relheight=0.02)
 
 
-        self.cadlead = Label(self.frameup, text="Como nos conheceu:", font="Ivy 13", background=color("background"))
-        self.cadlead.place(relx=0.02, rely=0.49)
+        self.cadlead = Label(self.frameup, text="Como nos conheceu:", font="Ivy 12", background=color("background"))
+        self.cadlead.place(relx=0.02, rely=0.33)
         self.lead_entry = Entry(self.frameup, font='Ivy 13')
-        self.lead_entry.place(relx=0.40, rely=0.49, relwidth=0.57, relheight=0.05)
+        self.lead_entry.place(relx=0.02, rely=0.39, relwidth=0.57, relheight=0.06)
 
         self.cadobs = Label(self.frameup, text="Observação:", font="Ivy 13", background=color("background"))
-        self.cadobs.place(relx=0.02, rely=0.56)
+        self.cadobs.place(relx=0.02, rely=0.52)
         self.obs_entry = Text(self.frameup, font='Ivy 14')
-        self.obs_entry.place(relx=0.03, rely=0.62, relwidth=0.94, relheight=0.20)
+        self.obs_entry.place(relx=0.03, rely=0.58, relwidth=0.94, relheight=0.24)
 
         self.cadid = Label(self.framedown, text="ID: ", font="Ivy 20", background="#CEDCE4")
         self.cadid.place(relx=0.02, rely=0.013)
@@ -625,7 +626,7 @@ class ClientsView(ClientsController):
         global tree
         list = self.selectAllClients()
 
-        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Profissão', 'Data de nascimento']
+        self.list_header = ['ID', 'Nome', 'Email', 'Documento', 'Data de nascimento']
         tree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=tree.yview)
 
@@ -633,8 +634,8 @@ class ClientsView(ClientsController):
         tree.place(relx=0.01, rely=0.10, relwidth=0.96, relheight=0.490)
         self.vsb.place(relx=0.97, rely=0.10, relwidth=0.02, relheight=0.490)
 
-        hd = ["nw", "nw", "nw", "nw", "center", "center"]
-        h = [30, 190, 190, 90, 100, 100]
+        hd = ["nw", "nw", "nw", "center", "center"]
+        h = [30, 190, 190, 100, 100]
         n = 0
 
         for col in self.list_header:
@@ -826,17 +827,16 @@ class ClientsView(ClientsController):
                 self.name_entry.insert(END, entry[0])
                 self.email_entry.insert(END, entry[1])
                 self.cod_entry.insert(END, entry[2])
-                self.birth.insert(END, entry[4])
-                self.occup_entry.insert(END, entry[3])
-                self.lead_entry.insert(END, entry[5])
-                self.obs_entry.insert("1.0", entry[6])
+                self.birth.insert(END, entry[3])
+                self.lead_entry.insert(END, entry[4])
+                self.obs_entry.insert("1.0", entry[5])
 
                 self.getEntry()
                 self.cp = self.cp.replace(".", "").replace("/", "").replace("-", "")
                 self.connect_db()
-                self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, profissao, datacad, nascimento, fiscal, lead)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                                    (self.name, self.email, self.cp, self.occup, self.datecad, self.birthday,
+                self.cursor.execute(""" INSERT INTO tb_clientes (nome, email, cp, datacad, nascimento, fiscal, lead)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                                    (self.name, self.email, self.cp, self.datecad, self.birthday,
                                      self.obs, self.lead))
                 self.conn.commit()
                 self.disconnect_db()
@@ -849,7 +849,7 @@ class ClientsView(ClientsController):
                 self.lb_id.config(text=str(cod))
 
                 for index, element in enumerate(row):
-                    if index > 6:
+                    if index > 5:
                         if len(element) <= 15:
                             self.num = element.replace(" ", "").replace("(", "").replace(")", "").replace("-", "")
                         else:
@@ -924,7 +924,6 @@ class ClientsView(ClientsController):
             dataline.append(self.name)
             dataline.append(self.email)
             dataline.append(self.cp)
-            dataline.append(self.occup)
             dataline.append(self.birthday)
             dataline.append(self.lead)
             dataline.append(self.obs)

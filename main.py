@@ -261,12 +261,55 @@ class App:
         self.tabEnt = Frame(self.configure, background=color("background"))
         self.tabLoc = Frame(self.configure, background=color("background"))
         self.tabPag = Frame(self.configure, background=color("background"))
+        self.tabCom = Frame(self.configure, background=color("background"))
         self.configure.add(self.tabEnt, text="  Dados da Empresa  ")
         self.configure.add(self.tabAcc, text="  Dados Bancários  ")
         self.configure.add(self.tabLoc, text="  Dados Adicionais  ")
+        self.configure.add(self.tabCom, text="  Comercial  ")
         self.configure.place(x=0, y=0, relheight=1, relwidth=1)
 
         self.addImg = PhotoImage(file=r'assets\ATUALIZAR.png')
+        self.rmvImg = PhotoImage(file=r'assets\rmv.png')
+        self.add2Img = PhotoImage(file=r'assets\add.png')
+
+        ## TAB COMERCIAL
+
+        self.lb_status = Label(self.tabCom, text="Status:", font=("Ivy", 14, "bold"), bg=color("background"))
+        self.lb_status.place(relx=0.07, rely=0.15, relwidth=0.2)
+        self.status_entry = ttk.Combobox(self.tabCom, font=("Ivy", 14))
+        self.status_entry.place(relx=0.25, rely=0.15, relwidth=0.40, relheight=0.1)
+
+        self.btn_addstatus = Button(self.tabCom, image=self.add2Img, relief='flat',
+                                 command=self)
+        self.btn_addstatus.place(relx=0.67, rely=0.10, width=70, height=60)
+        self.btn_rmvstatus = Button(self.tabCom, image=self.rmvImg, relief='flat',
+                                 command=self)
+        self.btn_rmvstatus.place(relx=0.80, rely=0.10, width=70, height=60)
+
+        self.lb_tax = Label(self.tabCom, text="Taxa:", font=("Ivy", 14, "bold"), bg=color("background"))
+        self.lb_tax.place(relx=0.09, rely=0.45, relwidth=0.18)
+        self.cmbTax = ttk.Combobox(self.tabCom, font=("Ivy", 14))
+        self.cmbTax.place(relx=0.25, rely=0.45, relwidth=0.10, relheight=0.1)
+        self.cmbTax['values'] = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12')
+        self.tax_entry = Entry(self.tabCom, font=("Ivy", 14))
+        self.tax_entry.place(relx=0.38, rely=0.45, relwidth=0.15, relheight=0.1)
+        self.lb_percent = Label(self.tabCom, text="%", font=("Ivy", 14, "bold"), bg=color("background"))
+        self.lb_percent.place(relx=0.55, rely=0.45, relwidth=0.05)
+
+        self.btn_addtax = Button(self.tabCom, image=self.add2Img, relief='flat',
+                                 command=self)
+        self.btn_addtax.place(relx=0.65, rely=0.40, width=70, height=60)
+
+        self.lb_comis = Label(self.tabCom, text="Comissão:", font=("Ivy", 14, "bold"), bg=color("background"))
+        self.lb_comis.place(relx=0.037, rely=0.75, relwidth=0.2)
+        self.comis_entry = Entry(self.tabCom, font=("Ivy", 14))
+        self.comis_entry.place(relx=0.25, rely=0.75, relwidth=0.28, relheight=0.1)
+        self.lb_percent2 = Label(self.tabCom, text="%", font=("Ivy", 14, "bold"), bg=color("background"))
+        self.lb_percent2.place(relx=0.55, rely=0.75, relwidth=0.05)
+
+        self.btn_addcomis = Button(self.tabCom, image=self.add2Img, relief='flat',
+                                 command=self)
+        self.btn_addcomis.place(relx=0.65, rely=0.70, width=70, height=60)
 
         ## TAB EMPRESA
 
@@ -332,7 +375,7 @@ class App:
         ## TAB LOCAL
 
         self.lb_email = Label(self.tabLoc, text="Email:", font=("Ivy", 13, "bold"), bg=color("background"))
-        self.lb_email.place(relx=0.05, rely=0.1, relwidth=0.2)
+        self.lb_email.place(relx=0.08, rely=0.1, relwidth=0.2)
         self.email_entry = Entry(self.tabLoc, font=("Ivy", 14))
         self.email_entry.place(relx=0.25, rely=0.1, relwidth=0.70, relheight=0.1)
         self.email_entry.insert(END, row[9])
@@ -356,7 +399,7 @@ class App:
         self.loc_entry.insert(END, row[12])
 
         self.lb_cep = Label(self.tabLoc, text="CEP:", font=("Ivy", 14, "bold"), bg=color("background"))
-        self.lb_cep.place(relx=0.045, rely=0.8, relwidth=0.18)
+        self.lb_cep.place(relx=0.098, rely=0.8, relwidth=0.18)
         self.cep_entry = Entry(self.tabLoc, font=("Ivy", 14))
         self.cep_entry.place(relx=0.25, rely=0.8, relwidth=0.30, relheight=0.1)
         self.cep_entry.insert(END, row[13])
@@ -445,7 +488,6 @@ class App:
             messagebox.showinfo('Erro', f'Insira uma data anterior à: {self.cmbDatemax.get()}')
 
         self.printRep()
-
 
     def printCal2(self):
         dataIni = self.calendar2.get_date().replace("/", "-")
