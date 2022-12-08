@@ -168,7 +168,6 @@ class App:
         self.text = Label(self.frameright, text="Administrativo", font="Ivy 20 bold", bg="#CEDCE4")
         self.text.place(relx=0.01, rely=0.018, relwidth=0.3, relheight=0.05)
 
-
         self.logoImg = PhotoImage(file=r'assets\LOGO.PNG')
         self.logo = Label(self.framedownleft, image=self.logoImg, background=color("background"))
         self.logo.place(x=0, y=39, relwidth=1, height=390)
@@ -224,9 +223,9 @@ class App:
         self.cmbDatemax = Entry(self.framereport, font=('Arial', 13, 'bold'))
         self.cmbDatemax.place(relx=0.23, rely=0.02, relwidth=0.12, relheight=0.2)
 
-        self.cmbDatemax.bind("<Double-Button-1>", self.calendar2)
+        self.cmbDatemax.bind("<Double-Button-1>", self.opencalendar2)
 
-        self.cmbDatemin.bind("<Double-Button-1>", self.calendar)
+        self.cmbDatemin.bind("<Double-Button-1>", self.opencalendar)
 
         self.framereport2 = LabelFrame(self.frameright, bg=color("background"))
         self.framereport2.place(relx=0.02, rely=0.45, relwidth=0.25, relheight=0.5)
@@ -280,10 +279,10 @@ class App:
         self.status_entry.place(relx=0.25, rely=0.15, relwidth=0.40, relheight=0.1)
 
         self.btn_addstatus = Button(self.tabCom, image=self.add2Img, relief='flat',
-                                 command=self)
+                                 command=self.addStatus)
         self.btn_addstatus.place(relx=0.67, rely=0.10, width=70, height=60)
         self.btn_rmvstatus = Button(self.tabCom, image=self.rmvImg, relief='flat',
-                                 command=self)
+                                 command=self.rmvStatus)
         self.btn_rmvstatus.place(relx=0.80, rely=0.10, width=70, height=60)
 
         self.lb_tax = Label(self.tabCom, text="Taxa:", font=("Ivy", 14, "bold"), bg=color("background"))
@@ -297,7 +296,7 @@ class App:
         self.lb_percent.place(relx=0.55, rely=0.45, relwidth=0.05)
 
         self.btn_addtax = Button(self.tabCom, image=self.add2Img, relief='flat',
-                                 command=self)
+                                 command=self.addTax)
         self.btn_addtax.place(relx=0.65, rely=0.40, width=70, height=60)
 
         self.lb_comis = Label(self.tabCom, text="Comissão:", font=("Ivy", 14, "bold"), bg=color("background"))
@@ -308,7 +307,7 @@ class App:
         self.lb_percent2.place(relx=0.55, rely=0.75, relwidth=0.05)
 
         self.btn_addcomis = Button(self.tabCom, image=self.add2Img, relief='flat',
-                                 command=self)
+                                 command=self.addComis)
         self.btn_addcomis.place(relx=0.65, rely=0.70, width=70, height=60)
 
         ## TAB EMPRESA
@@ -461,15 +460,48 @@ class App:
         messagebox.showinfo('Empresa', 'Dados da empresa registrados com sucesso.')
         self.disconnect_db()
 
-    def calendar(self, event):
-        self.calendar = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), locale='pt_br')
+    def addStatus(self):
+        self.newStatus = self.status_entry.get()
+        self.connect_db()
+        self.cursor.execute(""" INSERT INTO tb_status (status)
+                    VALUES (?)""",
+                            (self.newStatus, ))
+        self.conn.commit()
+        self.disconnect_db()
+
+    def rmvStatus(self):
+        pass
+
+    def addTax(self):
+        self.taxcod = self.cmbTax.get()
+        self.tax = self.tax_entry.get()
+        self.connect_db()
+        self.cursor.execute(""" UPDATE tb_tax SET
+                        taxa = ?
+                        WHERE cod = ?""",
+                            (self.tax, self.taxcod,))
+        self.conn.commit()
+        self.disconnect_db()
+
+    def addComis(self):
+        self.comis = self.comis_entry.get()
+        self.connect_db()
+        self.cursor.execute(""" UPDATE info SET
+                        comissao = ?
+                        WHERE cod = 1""",
+                            (self.comis, ))
+        self.conn.commit()
+        self.disconnect_db()
+
+    def opencalendar(self, event):
+        self.calendar = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), date_pattern="y-mm-dd")
         self.calendar.place(relx=0.01, rely=0.02, relheight=0.96)
         self.date_btn = Button(self.framereport, font="Ivy 11", text="Inserir Data", command=self.printCal)
         self.date_btn.place(relx=0.35, rely=0.04, relwidth=0.2, relheight=0.2)
 
 
-    def calendar2(self, event):
-        self.calendar2 = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), locale='pt_br')
+    def opencalendar2(self, event):
+        self.calendar2 = Calendar(self.framereport, bg=color("background"), font=("Times", 10, 'bold'), date_pattern="y-mm-dd")
         self.calendar2.place(relx=0.01, rely=0.02, relheight=0.96)
         self.date_btn2 = Button(self.framereport, font="Ivy 11", text="Inserir Data",
                                 command=self.printCal2)
@@ -503,15 +535,17 @@ class App:
 
     def printRep(self):
         self.connect_db()
-        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'orçamento' AND data > ? AND data < ?", (self.cmbDatemin.get(), self.cmbDatemax.get()))
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'orçamento' AND data >= ? AND data <= ?", (self.cmbDatemin.get(), self.cmbDatemax.get()))
         budgets = self.cursor.fetchone()
-        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'venda'")
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'venda' AND data >= ? AND data <= ?", (self.cmbDatemin.get(), self.cmbDatemax.get()))
         sales = self.cursor.fetchone()
-        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'ordem'")
+        self.cursor.execute("SELECT count(*) FROM tb_comercial WHERE tipo = 'ordem' AND data >= ? AND data <= ?", (self.cmbDatemin.get(), self.cmbDatemax.get()))
         orders = self.cursor.fetchone()
         self.disconnect_db()
 
         self.lb_bud.config(text=budgets)
+        self.lb_sal.config(text=sales)
+        self.lb_ord.config(text=orders)
 
 
 

@@ -357,6 +357,8 @@ class ComercialController:
         try:
             self.prod.config(state=NORMAL)
             prod = self.budgettreeSelect()
+            self.gain = self.selectProductbyId(int(prod[0]))[0][9]
+            self.lblgain.config(text=f'R$ {self.gain} ')
             self.cleanprod()
             self.setProdEntry(prod[0], f'{prod[1]} - {prod[2]}', prod[3], prod[4], prod[5], prod[6])
             self.prod.config(state = DISABLED)
@@ -365,7 +367,7 @@ class ComercialController:
             self.m2.insert(END, "0")
             self.uni.insert(END, "0")
         except:
-            self.prod.config(state=DISABLED)
+            self.prod.config(state=NORMAL)
 
 
 class ComercialView(ComercialController):
@@ -542,22 +544,25 @@ class ComercialView(ComercialController):
         self.lblf = Label(self.framedown, font=('arial', 13, 'bold'), text="Deslocamento:", bg=color("background"),
                           anchor='e', justify=RIGHT)
         self.lblf.place(relx=0.02, rely=0.665, relwidth=0.15, relheight=0.08)
-        self.lblfrete = Entry(self.framedown, font=('arial', 13, 'bold'), justify=LEFT)
+        self.lblfrete = Entry(self.framedown, font=('arial', 13, 'bold'), justify=RIGHT)
         self.lblfrete.place(relx=0.18, rely=0.68, relwidth=0.14, relheight=0.05)
+
+        self.lblfrete.bind('<Return>', self.discountValue)
+        self.lblfrete.bind('<FocusOut>', self.discountValue)
 
         self.lblSubTotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Subtotal", bg=color("background"),
                                  anchor='e', justify=RIGHT)
-        self.lblSubTotal.place(relx=0.63, rely=0.68, relwidth=0.13, relheight=0.08)
+        self.lblSubTotal.place(relx=0.655, rely=0.68, relwidth=0.13, relheight=0.08)
         self.subTotal = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"))
-        self.subTotal.place(relx=0.780, rely=0.69, relwidth=0.19, relheight=0.06)
+        self.subTotal.place(relx=0.80, rely=0.69, relwidth=0.17, relheight=0.06)
         self.subTotal.config(state=DISABLED)
 
         self.lbldiscount = Label(self.framedown, font=('arial', 14, 'bold'),
                                  text="Desconto                              %", bg=color("background"),
                                  anchor='e', justify=RIGHT)
-        self.lbldiscount.place(relx=0.63, rely=0.78, relwidth=0.34, relheight=0.08)
+        self.lbldiscount.place(relx=0.65, rely=0.78, relwidth=0.34, relheight=0.08)
         self.discount = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"), justify=RIGHT)
-        self.discount.place(relx=0.780, rely=0.79, relwidth=0.15, relheight=0.06)
+        self.discount.place(relx=0.80, rely=0.79, relwidth=0.13, relheight=0.06)
         self.discount.insert(END, "0")
 
         self.discount.bind('<Return>', self.discountValue)
@@ -565,13 +570,13 @@ class ComercialView(ComercialController):
 
         self.lbltotal = Label(self.framedown, font=('arial', 14, 'bold'), text="Total", bg=color("background"),
                                  anchor='e', justify=RIGHT)
-        self.lbltotal.place(relx=0.605, rely=0.88, relwidth=0.16, relheight=0.08)
+        self.lbltotal.place(relx=0.63, rely=0.88, relwidth=0.16, relheight=0.08)
         self.total = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"))
-        self.total.place(relx=0.780, rely=0.89, relwidth=0.19, relheight=0.06)
+        self.total.place(relx=0.80, rely=0.89, relwidth=0.17, relheight=0.06)
         self.total.config(state=DISABLED)
 
         self.cmbPag = ttk.Combobox(self.framedown, font=('Ivy', 14, 'bold'))
-        self.cmbPag.place(relx=0.4, rely=0.77, relwidth=0.24, relheight=0.06)
+        self.cmbPag.place(relx=0.35, rely=0.77, relwidth=0.24, relheight=0.06)
         self.cmbPag['values'] = ('À vista', 'Antecipado', 'Parcelado')
         self.cmbPag.current(0)
         self.cmbPag['state'] = 'readonly'
@@ -585,16 +590,16 @@ class ComercialView(ComercialController):
         self.cmbPar.bind('<<ComboboxSelected>>', self.divTotal)
 
         self.cmbStts = ttk.Combobox(self.framedown, font=('Ivy', 12, 'bold'))
-        self.cmbStts.place(relx=0.4, rely=0.69, relwidth=0.24, relheight=0.06)
+        self.cmbStts.place(relx=0.35, rely=0.69, relwidth=0.24, relheight=0.06)
         self.cmbStts['values'] = ('Novo lead', 'Em contato', 'Orçamento enviado', 'Aguardando Retorno', 'Perdido', 'Fechado', 'Pendente', 'Em produção', 'Entrega finalizada')
         self.cmbStts.current(0)
         self.cmbStts['state'] = 'readonly'
 
         self.lblobs = Label(self.framedown, font=('arial', 13), text="Anotações:", bg=color("background"),
                           anchor='e', justify=RIGHT)
-        self.lblobs.place(relx=0.065, rely=0.80, relwidth=0.25, relheight=0.08)
+        self.lblobs.place(relx=0.060, rely=0.80, relwidth=0.25, relheight=0.08)
         self.obs_entry = Text(self.framedown, font=('arial', 10))
-        self.obs_entry.place(relx=0.208, rely=0.86, relwidth=0.43, relheight=0.10)
+        self.obs_entry.place(relx=0.208, rely=0.86, relwidth=0.38, relheight=0.10)
 
         self.lblkg = Label(self.framedown, font=('arial', 13, 'bold'), text="kg", bg=color("background"),
                                  anchor='e', justify=RIGHT)
@@ -620,11 +625,14 @@ class ComercialView(ComercialController):
         self.uni = Entry(self.framedown, font=('arial', 13), bg=color("background"), justify=CENTER)
         self.uni.place(relx=0.74, rely=0.29, relwidth=0.07, relheight=0.06)
 
+        self.lblgain = Label(self.framedown, font=('arial', 16, 'bold'), text="", bg=color("background"),
+                                 anchor='e', justify=RIGHT)
+        self.lblgain.place(relx=0.88, rely=0.20)
+
         self.prodcod = Label(self.framedown, font=('arial', 1), bg=color("background"), fg=color("background"))
         self.prodcod.place(relx=0.55, rely=0.11, relwidth=0.26, relheight=0.05)
         self.prod = Entry(self.framedown, font=('arial', 11), justify=LEFT)
-        self.prod.place(relx=0.55, rely=0.11, relwidth=0.38, relheight=0.05)
-        self.prod.config(state=DISABLED)
+        self.prod.place(relx=0.55, rely=0.11, relwidth=0.33, relheight=0.05)
 
         self.mat = Label(self.framedown)
         self.valuekg = Label(self.framedown)
@@ -634,6 +642,10 @@ class ComercialView(ComercialController):
 
         self.rmvImg = PhotoImage(file=r'assets\rmv.png')
         self.addImg = PhotoImage(file=r'assets\add.png')
+
+        self.bt_clearprod = Button(self.framedown, image=self.srchImg, bg=color("background"), relief='flat',
+                                   command=self.searchProdBudgets)
+        self.bt_clearprod.place(relx=0.88, rely=0.10, relwidth=0.05, relheight=0.07)
 
         self.bt_clearprod = Button(self.framedown, image=self.clrImg, bg=color("background"), relief='flat',
                                 command=self.cleanprod)
@@ -866,6 +878,9 @@ class ComercialView(ComercialController):
         self.clear_frameleft()
         self.clear_frameright()
 
+    def searchProdBudgets(self):
+        pass
+
     def searchClientComercial(self):
         if self.name_entry.get() == '':
             list = self.selectAllClients()
@@ -964,7 +979,7 @@ class ComercialView(ComercialController):
                 budgetTree.insert("", END, values=(self.prodcod.cget("text"), self.prod.get(), f"{self.totalkg:.2f}", f'{self.totalm:.2f}', f'{self.totalm2:.2f}',
                                                    f'{self.totaluni:.2f}', f'{self.totalitem:.2f}'))
                 self.cleanprod()
-                self.prod.config(state=DISABLED)
+                self.prod.config(state=NORMAL)
                 self.sumTotal()
 
             else:
@@ -1053,11 +1068,16 @@ class ComercialView(ComercialController):
 
     def sumTotal(self):
         self.subtotalvalue = 0
+        if self.lblfrete.get() == "":
+            self.frete = 0
+        else:
+            self.frete = float(self.lblfrete.get())
+
         for child in budgetTree.get_children():
             self.value = float(budgetTree.item(child, "values")[6])
             self.subtotalvalue += self.value
         self.div = int(self.cmbPar.get())
-        self.totalvalue = (self.subtotalvalue * (1 - (float(self.discount.get()) / 100)))/self.div
+        self.totalvalue = ((self.subtotalvalue + self.frete) * (1 - (float(self.discount.get()) / 100)))/self.div
 
         self.subTotal.config(state=NORMAL)
         self.subTotal.delete(0, END)
@@ -1167,7 +1187,7 @@ class ComercialView(ComercialController):
         self.treecepReload()
 
     def getAllData(self):
-        self.datecad = date.today().strftime("%d-%m-%Y")
+        self.datecad = date.today().strftime("%Y-%m-%d")
 
         self.zip = random.randint(10000000000, 99999999999)
         self.link = f"{self.cod}_{self.name}_{self.datecad}_{self.zip}"
@@ -1215,7 +1235,7 @@ class ComercialView(ComercialController):
         if self.cepcod == "0":
             messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
             return
-        self.datecad = date.today().strftime("%d-%m-%Y")
+        self.datecad = date.today().strftime("%Y-%m-%d")
 
         self.zip = random.randint(10000000000, 99999999999)
         self.link = f"{self.cod}_{self.name}_{self.datecad}_{self.zip}"
@@ -1521,8 +1541,10 @@ class ComercialView(ComercialController):
             self.cmbPar.current(0)
             self.cmbPar['state'] = 'disabled'
 
+        self.discountValue(event)
+
     def divTotal(self, event):
-        self.sumTotal()
+        self.discountValue(self)
 
     def filter(self, type):
         for widget in self.framedown.winfo_children():

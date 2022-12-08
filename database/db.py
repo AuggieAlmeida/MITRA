@@ -62,6 +62,7 @@ class Database:
                 unit REAL,
                 liq REAL,
                 bru REAL,
+                gain REAL,
                 descricao TEXT
             );
         """)
@@ -139,9 +140,9 @@ class Database:
             pass
         else:
             create = ""
-            self.cursor.execute(" INSERT INTO info (empresa, titulo, cnpj, ie, pix, banco, conta, agencia, email, ctt, end, loc, cep) "
-                                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                (create, create, create, create, create, create, create, create, create, create, create, create, create,))
+            self.cursor.execute(" INSERT INTO info (empresa, titulo, cnpj, ie, pix, banco, conta, agencia, email, ctt, end, loc, cep, comissao) "
+                                "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                (create, create, create, create, create, create, create, create, create, create, create, create, create, create,))
         for i in range(0, 12):
             self.cursor.execute("SELECT count(*) FROM tb_tax")
             taxes = self.cursor.fetchone()[0]
