@@ -77,6 +77,7 @@ class ComercialController:
         self.m.delete(0, END)
         self.m2.delete(0, END)
         self.uni.delete(0, END)
+        self.lblgain.config(text='')
 
     def connect_db(self):
         db_path = os.path.join(
@@ -358,8 +359,8 @@ class ComercialController:
             self.prod.config(state=NORMAL)
             prod = self.budgettreeSelect()
             self.gain = self.selectProductbyId(int(prod[0]))[0][9]
-            self.lblgain.config(text=f'R$ {self.gain} ')
             self.cleanprod()
+            self.lblgain.config(text=f'R$ {self.gain} ')
             self.setProdEntry(prod[0], f'{prod[1]} - {prod[2]}', prod[3], prod[4], prod[5], prod[6])
             self.prod.config(state = DISABLED)
             self.kg.insert(END, "0")
@@ -583,7 +584,7 @@ class ComercialView(ComercialController):
         self.cmbPag['state'] = 'readonly'
         self.cmbPag.bind('<<ComboboxSelected>>', self.callback)
 
-        self.lb_taxChk = Checkbutton(self.framedown, text="", font="Ivy 10", bg=color("background"), variable=self.taxChk)
+        self.lb_taxChk = Checkbutton(self.framedown, text="", font="Ivy 10", bg=color("background"), variable=self.taxChk, command=self.sumTotal)
         self.lb_taxChk.place(relx=0.63, rely=0.90, relwidth=0.03)
         self.taxChk.set(0)
 
@@ -706,8 +707,8 @@ class ComercialView(ComercialController):
         self.vsb2 = ttk.Scrollbar(self.frameup, orient="vertical", command=treecomercial.yview)
 
         treecomercial.configure(yscrollcommand=self.vsb2.set)
-        treecomercial.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.41)
-        self.vsb2.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.41)
+        treecomercial.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.65)
+        self.vsb2.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.65)
 
         hd = ["nw", "nw", "nw", "nw"]
         h = [10, 120, 120, 90]
@@ -768,7 +769,7 @@ class ComercialView(ComercialController):
         global tree
         list = self.selectAllClients()
 
-        self.list_header = ['ID', 'Nomea', 'Email', 'Documento']
+        self.list_header = ['ID', 'Nome', 'Email', 'Documento']
         tree = ttk.Treeview(self.frameup, selectmode="extended", columns=self.list_header, show="headings")
         self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
@@ -933,8 +934,8 @@ class ComercialView(ComercialController):
         self.vsb = ttk.Scrollbar(self.frameup, orient="vertical", command=tree.yview)
 
         tree.configure(yscrollcommand=self.vsb.set)
-        tree.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.41)
-        self.vsb.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.41)
+        tree.place(relx=0.02, rely=0.16, relwidth=0.92, relheight=0.650)
+        self.vsb.place(relx=0.94, rely=0.16, relwidth=0.04, relheight=0.650)
 
         hd = ["nw", "nw", "nw", "nw"]
         h = [10, 120, 120, 90]
@@ -1111,11 +1112,24 @@ class ComercialView(ComercialController):
         else:
             self.frete = float(self.lblfrete.get())
 
+        cod = self.cmbPar.get()
+        self.connect_db()
+        self.cursor.execute(
+            """ SELECT taxa FROM tb_tax
+            WHERE cod = ? """, (cod,))
+        row = self.cursor.fetchone()
+        self.disconnect_db()
+        print(row[0]/100)
+
         for child in budgetTree.get_children():
             self.value = float(budgetTree.item(child, "values")[6])
             self.subtotalvalue += self.value
         self.div = int(self.cmbPar.get())
-        self.totalvalue = ((self.subtotalvalue + self.frete) * (1 - (float(self.discount.get()) / 100)))/self.div
+        if self.taxChk.get() == "1":
+            self.totalvalue = (( (self.subtotalvalue + self.frete) * (1 - (float(self.discount.get()) / 100) ) / self.div)) * (1 +(float(row[0])/100))
+        else:
+            self.totalvalue = ((self.subtotalvalue + self.frete) * (1 - (float(self.discount.get()) / 100)))/self.div
+
 
         self.subTotal.config(state=NORMAL)
         self.subTotal.delete(0, END)

@@ -290,25 +290,29 @@ class App:
         self.cmbTax = ttk.Combobox(self.tabCom, font=("Ivy", 14))
         self.cmbTax.place(relx=0.25, rely=0.45, relwidth=0.10, relheight=0.1)
         self.cmbTax['values'] = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12')
+        self.cmbTax.bind('<<ComboboxSelected>>', self.defineTax)
+        self.cmbTax.configure(state='readonly')
+
         self.tax_entry = Entry(self.tabCom, font=("Ivy", 14))
-        self.tax_entry.place(relx=0.38, rely=0.45, relwidth=0.15, relheight=0.1)
+        self.tax_entry.place(relx=0.38, rely=0.45, relwidth=0.1, relheight=0.1)
         self.lb_percent = Label(self.tabCom, text="%", font=("Ivy", 14, "bold"), bg=color("background"))
-        self.lb_percent.place(relx=0.55, rely=0.45, relwidth=0.05)
+        self.lb_percent.place(relx=0.49, rely=0.45, relwidth=0.05)
 
         self.btn_addtax = Button(self.tabCom, image=self.add2Img, relief='flat',
                                  command=self.addTax)
-        self.btn_addtax.place(relx=0.65, rely=0.40, width=70, height=60)
+        self.btn_addtax.place(relx=0.54, rely=0.40, width=70, height=60)
 
         self.lb_comis = Label(self.tabCom, text="Comissão:", font=("Ivy", 14, "bold"), bg=color("background"))
         self.lb_comis.place(relx=0.037, rely=0.75, relwidth=0.2)
         self.comis_entry = Entry(self.tabCom, font=("Ivy", 14))
-        self.comis_entry.place(relx=0.25, rely=0.75, relwidth=0.28, relheight=0.1)
+        self.comis_entry.place(relx=0.25, rely=0.75, relwidth=0.23, relheight=0.1)
+        self.comis_entry.insert(END, row[14])
         self.lb_percent2 = Label(self.tabCom, text="%", font=("Ivy", 14, "bold"), bg=color("background"))
-        self.lb_percent2.place(relx=0.55, rely=0.75, relwidth=0.05)
+        self.lb_percent2.place(relx=0.49, rely=0.75, relwidth=0.05)
 
         self.btn_addcomis = Button(self.tabCom, image=self.add2Img, relief='flat',
                                  command=self.addComis)
-        self.btn_addcomis.place(relx=0.65, rely=0.70, width=70, height=60)
+        self.btn_addcomis.place(relx=0.54, rely=0.70, width=70, height=60)
 
         ## TAB EMPRESA
 
@@ -329,7 +333,6 @@ class App:
         self.cnpj_entry = Entry(self.tabEnt, font=("Ivy", 14))
         self.cnpj_entry.place(relx=0.25, rely=0.55, relwidth=0.40, relheight=0.1)
         self.cnpj_entry.insert(END, row[3])
-
 
         self.lb_ie = Label(self.tabEnt, text="IE:", font=("Ivy", 14, "bold"), bg=color("background"))
         self.lb_ie.place(relx=0.077, rely=0.75, relwidth=0.23)
@@ -547,7 +550,16 @@ class App:
         self.lb_sal.config(text=sales)
         self.lb_ord.config(text=orders)
 
-
+    def defineTax(self, event):
+        cod = self.cmbTax.get()
+        self.connect_db()
+        self.cursor.execute(
+            """ SELECT taxa FROM tb_tax
+            WHERE cod = ? """, (cod,))
+        row = self.cursor.fetchall()
+        self.disconnect_db()
+        self.tax_entry.delete(0, END)
+        self.tax_entry.insert(END, row[0])
 
 
 App()

@@ -149,6 +149,6 @@ class Database:
             if taxes >=12:
                 pass
             else:
-                self.cursor.execute(" INSERT INTO tb_tax (taxa) VALUES (?)", ("",))
+                self.cursor.execute(" INSERT INTO tb_tax (taxa) VALUES (?)", (0,))
         self.conn.commit()
         self.disconnect_db()
