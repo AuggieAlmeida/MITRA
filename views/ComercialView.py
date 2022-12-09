@@ -372,6 +372,7 @@ class ComercialController:
 
 class ComercialView(ComercialController):
     def __init__(self, frameup, framedown, framebar):
+        self.taxChk = StringVar()
         self.subtotalvalue = 0
         self.list_cli = ttk.Treeview
         self.framedown = framedown
@@ -582,8 +583,12 @@ class ComercialView(ComercialController):
         self.cmbPag['state'] = 'readonly'
         self.cmbPag.bind('<<ComboboxSelected>>', self.callback)
 
+        self.lb_taxChk = Checkbutton(self.framedown, text="", font="Ivy 10", bg=color("background"), variable=self.taxChk)
+        self.lb_taxChk.place(relx=0.63, rely=0.90, relwidth=0.03)
+        self.taxChk.set(0)
+
         self.cmbPar = ttk.Combobox(self.framedown, font=('Ivy', 14))
-        self.cmbPar.place(relx=0.648, rely=0.89, relwidth=0.05, relheight=0.06)
+        self.cmbPar.place(relx=0.67, rely=0.89, relwidth=0.05, relheight=0.06)
         self.cmbPar['values'] = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12')
         self.cmbPar.current(0)
         self.cmbPar['state'] = 'disabled'
@@ -663,6 +668,10 @@ class ComercialView(ComercialController):
         self.budid.place(relx=0.02, rely=0.013)
         self.lb_idbud = Label(self.framedown, text="0", font="Ivy 20", background="#CEDCE4", justify=LEFT)
         self.lb_idbud.place(relx=0.1, rely=0.013)
+
+        self.respons = Entry(self.framedown, font=('arial', 14, 'bold'), bg=color("background"), justify=RIGHT)
+        self.respons.place(relx=0.30, rely=0.013, relwidth=0.35, relheight=0.06)
+        self.respons.insert(END, "")
 
         self.lb_typebud = Label(self.framedown, text="", font="Ivy 18", background="#CEDCE4", anchor='e', justify=RIGHT)
         self.lb_typebud.place(relx=0.73, rely=0.013, relwidth=0.25)
@@ -879,7 +888,36 @@ class ComercialView(ComercialController):
         self.clear_frameright()
 
     def searchProdBudgets(self):
-        pass
+        self.connect_db()
+        self.prod.insert(END, '%')
+        nome = self.prod.get()
+        self.cursor.execute(""" SELECT * FROM tb_produtos
+            WHERE servico LIKE ? OR material LIKE ? ORDER BY servico ASC """, (nome, nome,))
+        self.info = self.cursor.fetchall()
+        self.disconnect_db()
+        self.prod.delete(0, END)
+
+        self.list_header = ['ID', 'Nome', 'Material', 'kg', 'm', 'm²', 'uni']
+        productTree = ttk.Treeview(self.framedown, selectmode="extended", columns=self.list_header, show="headings")
+        self.vsb = ttk.Scrollbar(self.framedown, orient="vertical", command=productTree.yview)
+
+        productTree.configure(yscrollcommand=self.vsb.set)
+        self.vsb.place(relx=0.52, rely=0.11, relwidth=0.02, relheight=0.26)
+        productTree.place(relx=0.02, rely=0.11, relwidth=0.50, relheight=0.26)
+
+        hd = ["nw", "nw", "nw", "nw", "nw", "nw", "nw"]
+        h = [10, 120, 80, 30, 30, 30, 30]
+        n = 0
+
+        for col in self.list_header:
+            productTree.heading(col, text=col.title(), anchor=CENTER)
+            productTree.column(col, width=h[n], anchor=hd[n])
+            n += 1
+
+        for item in self.info:
+            productTree.insert('', END, values=item)
+
+        productTree.bind("<ButtonRelease-1>", self.OnClick)
 
     def searchClientComercial(self):
         if self.name_entry.get() == '':
@@ -1235,6 +1273,9 @@ class ComercialView(ComercialController):
         if self.cepcod == "0":
             messagebox.showerror("Erro", "Escolha ao menos um endereço para vincular à esta venda.")
             return
+        self.type = "Orçamento"
+        self.lb_typebud.config(text=self.type)
+
         self.datecad = date.today().strftime("%Y-%m-%d")
 
         self.zip = random.randint(10000000000, 99999999999)
@@ -1426,6 +1467,8 @@ class ComercialView(ComercialController):
                 return
             self.getAllData()
             self.tipo = "venda"
+            self.type = "Venda"
+            self.lb_typebud.config(text=self.type)
             messagebox.showinfo('VENDA', 'Venda gerada com sucesso.')
             self.connect_db()
             self.cursor.execute(""" UPDATE tb_comercial SET
@@ -1493,6 +1536,8 @@ class ComercialView(ComercialController):
             self.getAllData()
             self.id = self.lb_idbud.cget("text")
             self.tipo = "ordem"
+            self.type = "Ordem de Serviço"
+            self.lb_typebud.config(text=self.type)
             messagebox.showinfo('ORDEM DE SERVIÇO', 'Ordem de serviço gerada com sucesso.')
             self.connect_db()
             self.cursor.execute(""" UPDATE tb_comercial SET

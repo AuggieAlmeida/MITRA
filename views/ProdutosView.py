@@ -391,7 +391,6 @@ class ProductsView(ProductsController):
         self.liq_entry.insert(END, "0")
         self.bru_entry.insert(END, "0")
 
-
     def init_buttons(self):
 
         self.insrtImg = PhotoImage(file=r"assets\INSERIR.png")

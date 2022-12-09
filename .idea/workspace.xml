@@ -3,9 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="79a4d406-2001-49dc-ad61-e9c514374f29" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SPDB.db" beforeDir="false" afterPath="$PROJECT_DIR$/SPDB.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/NOVO.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/NOVO.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/gencsv.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/gencsv.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/genods.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/genods.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/genorc.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/genorc.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/genven.png" beforeDir="false" afterPath="$PROJECT_DIR$/assets/genven.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ComercialView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ComercialView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/ProdutosView.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/ProdutosView.py" afterDir="false" />
     </list>
