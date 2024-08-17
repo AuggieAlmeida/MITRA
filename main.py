@@ -60,7 +60,7 @@ class App:
         root.mainloop()
 
     def home(self):
-        self.root.title("Sacomã Persianas")
+        self.root.title("Mitra")
         self.root.configure(background=color("background2"))
         set_window_center(self.root, 1260, 680)
         self.root.resizable(True, True)
