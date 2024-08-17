@@ -168,9 +168,9 @@ class App:
         self.text = Label(self.frameright, text="Administrativo", font="Ivy 20 bold", bg="#CEDCE4")
         self.text.place(relx=0.01, rely=0.018, relwidth=0.3, relheight=0.05)
 
-        self.logoImg = PhotoImage(file=r'assets\LOGO.PNG')
-        self.logo = Label(self.framedownleft, image=self.logoImg, background=color("background"))
-        self.logo.place(x=0, y=39, relwidth=1, height=390)
+        # self.logoImg = PhotoImage(file=r'assets\LOGO.PNG')
+        # self.logo = Label(self.framedownleft, image=self.logoImg, background=color("background"))
+        # self.logo.place(x=0, y=39, relwidth=1, height=390)
 
         Label(self.framedownleft, text="                                                 ", font="Ivy 13 bold",
               bg=color("background-bar")). \
